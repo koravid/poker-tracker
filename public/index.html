@@ -3,495 +3,720 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Poker Bankroll Tracker</title>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<title>Poker Tracker</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 :root{
-  --bg:#0f1117;--bg2:#1a1d27;--bg3:#22263a;--border:#2e3347;
-  --text:#e8eaf0;--muted:#7a82a0;--green:#1db87a;--red:#e85555;
-  --wina:#FF6B00;--ps:#E8002D;--pmu:#4a90d9;--bet:#F5A623;--uni:#00A0DC;
-  --radius:10px;--radius-lg:14px;
+  --bg:#0f0f0f;--bg2:#1a1a1a;--bg3:#242424;--bg4:#2e2e2e;
+  --border:#333;--border2:#444;
+  --text:#e8e6df;--text2:#9c9a92;--text3:#5f5e5a;
+  --green:#1D9E75;--green-dim:#0a3d2b;
+  --red:#E24B4A;--red-dim:#3d1010;
 }
-body{background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;min-height:100vh}
-.app{max-width:1100px;margin:0 auto;padding:1.5rem 1rem}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
 
-/* HEADER */
-.header{display:flex;align-items:center;justify-content:space-between;margin-bottom:1.5rem}
-.logo{display:flex;align-items:center;gap:10px}
-.logo h1{font-size:20px;font-weight:600;letter-spacing:-.3px}
-.suits{display:flex;gap:4px;font-size:18px}
-.status-dot{width:8px;height:8px;border-radius:50%;background:var(--green);animation:pulse 2s infinite}
-@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+nav{display:flex;align-items:center;padding:10px 16px;background:var(--bg2);border-bottom:1px solid var(--border);flex-wrap:wrap;gap:6px}
+.nav-btn{padding:7px 16px;border-radius:8px;font-size:13px;cursor:pointer;border:none;background:transparent;color:var(--text2);font-family:inherit;white-space:nowrap}
+.nav-btn:hover{background:var(--bg3);color:var(--text)}
+.nav-btn.active{background:var(--bg4);color:var(--text)}
 
-/* NAV */
-.nav{display:flex;gap:4px;margin-bottom:1.25rem;background:var(--bg2);padding:5px;border-radius:var(--radius-lg)}
-.nav-btn{flex:1;padding:8px 12px;border:none;border-radius:var(--radius);font-size:13px;cursor:pointer;background:transparent;color:var(--muted);font-weight:500;transition:all .15s}
-.nav-btn.active{background:var(--bg3);color:var(--text)}
-.nav-btn:hover:not(.active){color:var(--text)}
+.nav-bankrolls{display:flex;align-items:center;gap:8px;margin-left:auto;flex-wrap:wrap}
+.nav-br-item{display:flex;align-items:center;gap:4px;font-size:12px;color:var(--text2)}
+.nav-br-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+.nav-br-val{font-weight:600;color:var(--text)}
+.nav-br-total{font-size:13px;font-weight:700;color:var(--green);padding:4px 10px;background:var(--green-dim);border-radius:8px}
+.nav-br-edit{font-size:11px;color:var(--text3);cursor:pointer;padding:3px 8px;border-radius:6px;border:1px solid var(--border);background:transparent;font-family:inherit;margin-left:2px}
+.nav-br-edit:hover{background:var(--bg3);color:var(--text2)}
+.conn-wrap{display:flex;align-items:center;gap:5px;font-size:12px;color:var(--text3);margin-left:8px}
+.conn-dot{width:7px;height:7px;border-radius:50%;background:var(--red);display:inline-block;transition:background .3s}
+.conn-dot.on{background:var(--green)}
 
-/* METRICS */
-.metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:1.25rem}
-.metric{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-lg);padding:14px}
-.metric-label{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px}
-.metric-value{font-size:22px;font-weight:600}
-.pos{color:var(--green)}.neg{color:var(--red)}
+.page{display:none;padding:16px;max-width:1100px;margin:0 auto}
+.page.active{display:block}
 
-/* PANEL */
-.panel{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-lg);padding:1.25rem;margin-bottom:1rem}
-.panel-title{font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.07em;margin-bottom:1rem}
+.metrics{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-bottom:14px}
+.metric{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:14px}
+.metric-label{font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:5px}
+.metric-value{font-size:20px;font-weight:600;color:var(--text)}
+.metric-value.pos{color:var(--green)}
+.metric-value.neg{color:var(--red)}
 
-/* BUY-IN GRID */
-.buyin-site{margin-bottom:14px}
-.buyin-site:last-child{margin-bottom:0}
-.buyin-site-label{font-size:13px;font-weight:500;margin-bottom:8px;display:flex;align-items:center;gap:7px}
-.site-dot{width:9px;height:9px;border-radius:50%}
-.buyin-btns{display:flex;gap:7px;flex-wrap:wrap}
-.buyin-btn{width:58px;height:58px;border-radius:var(--radius);border:1px solid var(--border);font-size:16px;font-weight:700;cursor:pointer;background:var(--bg3);color:var(--text);transition:transform .1s,border-color .1s,background .1s;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px}
-.buyin-btn:hover{border-color:#4a5270;background:#2a2f48}
+.card{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:14px 16px;margin-bottom:12px}
+.card-title{font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.07em;margin-bottom:14px}
+
+.site-section{margin-bottom:16px}
+.site-label{display:flex;align-items:center;gap:7px;font-size:13px;font-weight:500;margin-bottom:8px;flex-wrap:wrap}
+.site-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0}
+.site-counter{font-size:12px;color:var(--text2)}
+.site-abi{font-size:11px;color:var(--text3)}
+.edit-site-btn{font-size:11px;color:var(--text3);cursor:pointer;padding:2px 8px;border-radius:5px;border:1px solid var(--border);background:transparent;font-family:inherit}
+.edit-site-btn:hover{background:var(--bg3);color:var(--text2)}
+
+.buyin-row{display:flex;gap:7px;flex-wrap:wrap;align-items:center}
+.buyin-btn{width:62px;height:62px;border-radius:8px;border:1px solid var(--border2);font-size:16px;font-weight:600;cursor:pointer;background:var(--bg3);color:var(--text);font-family:inherit;transition:transform .08s,background .1s;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:2px}
+.buyin-btn:hover{background:var(--bg4);border-color:#555}
 .buyin-btn:active{transform:scale(0.9)}
-.buyin-btn .sub{font-size:9px;color:var(--muted);font-weight:400}
-.buyin-btn.flash{background:#1a3a2a;border-color:var(--green)}
-.undo-btn{width:58px;height:58px;border-radius:var(--radius);border:1px solid var(--border);font-size:11px;cursor:pointer;background:var(--bg3);color:var(--muted);transition:all .15s;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px}
-.undo-btn:hover{color:var(--red);border-color:var(--red)}
+.buyin-btn .sub{font-size:9px;color:var(--text3);font-weight:400}
+.buyin-btn.flash{animation:flash .35s ease}
+@keyframes flash{0%{background:#0a3d2b;border-color:var(--green)}100%{background:var(--bg3);border-color:var(--border2)}}
+.undo-btn{width:48px;height:62px;border-radius:8px;border:1px solid var(--border);font-size:13px;cursor:pointer;background:transparent;color:var(--text3);font-family:inherit;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:2px}
+.undo-btn:hover{background:var(--red-dim);color:var(--red);border-color:var(--red)}
 
-/* RECAP */
-.recap{display:flex;flex-wrap:wrap;gap:8px;padding:10px 14px;background:var(--bg3);border-radius:var(--radius);border:1px solid var(--border)}
-.recap-tag{font-size:12px;color:var(--muted)}
-.recap-tag strong{color:var(--text);font-weight:600}
-.recap-total{margin-left:auto;font-size:13px;font-weight:600;color:var(--text)}
+.manual-row{display:flex;gap:8px;align-items:center;margin-top:10px;padding-top:12px;border-top:1px solid var(--border);flex-wrap:wrap}
+.manual-row label{font-size:12px;color:var(--text2);white-space:nowrap}
+.manual-row input{width:100px;padding:8px 10px;font-size:14px;border:1px solid var(--border2);border-radius:8px;background:var(--bg3);color:var(--text);font-family:inherit}
+.manual-row select{padding:8px 10px;font-size:13px;border:1px solid var(--border2);border-radius:8px;background:var(--bg3);color:var(--text);font-family:inherit}
+.btn-add{padding:8px 14px;border-radius:8px;font-size:13px;cursor:pointer;font-family:inherit;border:1px solid var(--green);background:var(--green-dim);color:var(--green)}
+.btn-add:hover{background:var(--green);color:#fff}
 
-/* CLOSE SESSION */
-.close-row{display:flex;gap:8px;flex-wrap:wrap;align-items:flex-end}
-.input-group{display:flex;flex-direction:column;gap:5px}
-.input-group label{font-size:12px;color:var(--muted)}
-input,select{padding:9px 12px;font-size:14px;border:1px solid var(--border);border-radius:var(--radius);background:var(--bg3);color:var(--text);font-family:inherit;outline:none}
-input:focus,select:focus{border-color:#4a5270}
-input::placeholder{color:var(--muted)}
-.btn{padding:9px 18px;border:1px solid var(--border);border-radius:var(--radius);font-size:13px;font-weight:500;cursor:pointer;font-family:inherit;transition:all .15s}
-.btn-primary{background:var(--green);color:#fff;border-color:var(--green)}
-.btn-primary:hover{background:#17a06a}
-.btn-ghost{background:transparent;color:var(--muted)}
-.btn-ghost:hover{color:var(--red);border-color:var(--red)}
-.btn-danger{background:transparent;color:var(--red);border-color:var(--red)}
-.btn-danger:hover{background:#2a1515}
+.recap{background:var(--bg3);border-radius:8px;padding:10px 14px;display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-top:8px}
+.recap-item{font-size:13px;color:var(--text2)}
+.recap-abi{font-size:11px;color:var(--text3);margin-left:3px}
+.recap-total{margin-left:auto;font-size:13px;font-weight:600;color:var(--green)}
 
-/* HISTORY */
+.form-row{display:flex;gap:10px;align-items:flex-end;flex-wrap:wrap}
+.fg{display:flex;flex-direction:column;gap:5px}
+.fg label{font-size:12px;color:var(--text2)}
+input,select{padding:9px 12px;font-size:14px;border:1px solid var(--border2);border-radius:8px;background:var(--bg3);color:var(--text);font-family:inherit}
+input:focus,select:focus{outline:none;border-color:#555}
+.btn{padding:9px 18px;border-radius:8px;font-size:13px;cursor:pointer;font-family:inherit;border:1px solid var(--border2);background:transparent;color:var(--text)}
+.btn:hover{background:var(--bg3)}
+.btn.primary{background:var(--green);border-color:var(--green);color:#fff}
+.btn.primary:hover{background:#168a63}
+.btn.danger{color:var(--red);border-color:var(--red)}
+.btn.danger:hover{background:var(--red-dim)}
+.btn.sm{padding:6px 12px;font-size:12px}
+
 .hist-list{display:flex;flex-direction:column;gap:5px;max-height:340px;overflow-y:auto}
-.hist-row{display:flex;align-items:center;gap:8px;padding:9px 12px;background:var(--bg3);border-radius:var(--radius);font-size:12px}
-.hist-date{color:var(--muted);min-width:78px}
+.hist-row{display:flex;align-items:center;gap:10px;padding:9px 12px;background:var(--bg3);border-radius:8px;font-size:13px}
+.hist-date{color:var(--text2);min-width:75px;font-size:12px}
 .hist-tags{flex:1;display:flex;gap:5px;flex-wrap:wrap}
-.hist-tag{padding:2px 7px;border-radius:5px;font-size:11px;background:var(--bg2);border:1px solid var(--border);color:var(--muted)}
-.hist-result{font-weight:600;min-width:70px;text-align:right}
-.del-btn{color:var(--muted);cursor:pointer;opacity:.5;font-size:11px;margin-left:4px}
-.del-btn:hover{opacity:1;color:var(--red)}
+.hist-tag{padding:2px 7px;border-radius:5px;font-size:11px;background:var(--bg4);border:1px solid var(--border)}
+.hist-result{font-weight:600;min-width:72px;text-align:right}
+.hist-del{opacity:.3;cursor:pointer;font-size:11px;margin-left:4px}
+.hist-del:hover{opacity:1;color:var(--red)}
 
-/* MONTH TABLE */
-.tbl{width:100%;border-collapse:collapse;font-size:13px}
-.tbl th{font-size:11px;color:var(--muted);text-align:left;padding:7px 10px;border-bottom:1px solid var(--border);font-weight:500}
-.tbl td{padding:8px 10px;border-bottom:1px solid var(--border)}
-.tbl tr:last-child td{border-bottom:none}
-.tbl tr:hover td{background:var(--bg3)}
+.stats-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px}
+.chart-wrap{position:relative;width:100%;height:220px}
+.site-breakdown{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-bottom:14px}
+.sb{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:12px}
+.sb-head{display:flex;align-items:center;gap:7px;margin-bottom:8px;font-size:13px;font-weight:600}
+.sb-row{display:flex;justify-content:space-between;font-size:12px;color:var(--text2);margin-bottom:3px}
+.sb-row span{color:var(--text);font-weight:500}
 
-/* CHARTS */
-.chart-wrap{position:relative;width:100%}
-.charts-row{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1rem}
+.mtable{width:100%;border-collapse:collapse;font-size:13px}
+.mtable th{font-size:11px;color:var(--text3);text-align:left;padding:6px 10px;border-bottom:1px solid var(--border);font-weight:600;text-transform:uppercase;letter-spacing:.05em}
+.mtable td{padding:8px 10px;border-bottom:1px solid var(--border)}
+.mtable tr:last-child td{border-bottom:none}
+.mtable tr:hover td{background:var(--bg3)}
 
-/* SITE CARDS */
-.sites-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-bottom:1rem}
-.site-card{background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius-lg);padding:12px}
-.sc-header{display:flex;align-items:center;gap:7px;margin-bottom:10px}
-.sc-name{font-size:12px;font-weight:600}
-.sc-row{display:flex;justify-content:space-between;font-size:12px;color:var(--muted);margin-bottom:3px}
-.sc-row span{color:var(--text);font-weight:500}
+.export-card{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:16px;margin-bottom:12px}
+.export-title{font-size:13px;font-weight:600;margin-bottom:6px}
+.export-desc{font-size:13px;color:var(--text2);margin-bottom:12px}
+textarea{width:100%;padding:10px;font-size:11px;font-family:monospace;border:1px solid var(--border);border-radius:8px;background:var(--bg3);color:var(--text2);resize:none}
+.endpoint{background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:9px 12px;margin-bottom:6px;font-family:monospace;font-size:12px;word-break:break-all}
+.method{display:inline-block;padding:2px 7px;border-radius:4px;font-size:11px;font-weight:700;margin-right:8px;background:var(--green-dim);color:var(--green)}
+.method.del{background:var(--red-dim);color:var(--red)}
+.empty{color:var(--text3);font-size:13px;text-align:center;padding:1.5rem 0}
+.pos{color:var(--green)}
+.neg{color:var(--red)}
 
-/* API DOCS */
-.api-block{background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);padding:12px;margin-bottom:8px}
-.api-method{font-size:11px;font-weight:700;padding:2px 7px;border-radius:4px;background:#1a3a2a;color:var(--green);margin-right:8px}
-.api-url{font-size:13px;font-family:monospace;color:var(--text)}
-.api-desc{font-size:12px;color:var(--muted);margin-top:6px}
-.api-example{font-size:11px;font-family:monospace;color:#7a9fd4;margin-top:4px;background:var(--bg2);padding:8px;border-radius:6px;white-space:pre-wrap;word-break:break-all}
-.copy-btn{font-size:11px;color:var(--muted);cursor:pointer;float:right;padding:2px 6px;border:1px solid var(--border);border-radius:4px;background:transparent;font-family:inherit}
-.copy-btn:hover{color:var(--text)}
-
-.empty{color:var(--muted);font-size:13px;text-align:center;padding:1.5rem 0}
-.page{display:none}.page.active{display:block}
-.toast{position:fixed;bottom:20px;right:20px;background:var(--green);color:#fff;padding:10px 18px;border-radius:var(--radius);font-size:13px;font-weight:500;opacity:0;transform:translateY(10px);transition:all .25s;pointer-events:none;z-index:999}
-.toast.show{opacity:1;transform:translateY(0)}
-.month-filter{display:flex;gap:8px;align-items:center;margin-bottom:1rem}
-.month-filter select{flex:none;width:160px}
+/* MODALS */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.75);display:flex;align-items:center;justify-content:center;z-index:100}
+.modal{background:var(--bg2);border:1px solid var(--border2);border-radius:12px;padding:20px;width:340px}
+.modal h3{font-size:15px;font-weight:600;margin-bottom:16px}
+.modal .fg{margin-bottom:12px}
+.modal .fg label{font-size:12px;color:var(--text2);display:block;margin-bottom:5px}
+.modal input{width:100%;padding:9px 12px;font-size:14px;border:1px solid var(--border2);border-radius:8px;background:var(--bg3);color:var(--text);font-family:inherit}
+.modal input:focus{outline:none;border-color:#555}
+.modal-btns{display:flex;gap:8px;margin-top:4px}
+.br-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 </style>
 </head>
 <body>
-<div class="app">
 
-<div class="header">
-  <div class="logo">
-    <div class="suits"><span>♠</span><span style="color:var(--red)">♥</span></div>
-    <h1>Poker Bankroll Tracker</h1>
-    <div class="status-dot" title="Connecté"></div>
+<!-- Modal : éditer un site de la session -->
+<div class="modal-overlay" id="edit-modal" style="display:none">
+  <div class="modal">
+    <h3 id="edit-modal-title">Modifier</h3>
+    <div class="fg"><label>Nombre de MTT</label><input type="number" id="edit-mtt" min="0" step="1"></div>
+    <div class="fg"><label>Buy-ins total (€)</label><input type="number" id="edit-buyin" min="0" step="0.01"></div>
+    <div class="modal-btns">
+      <button class="btn primary sm" onclick="saveEditSite()">Enregistrer</button>
+      <button class="btn sm" onclick="closeModal('edit-modal')">Annuler</button>
+    </div>
   </div>
-  <div style="font-size:12px;color:var(--muted)" id="last-update">—</div>
 </div>
 
-<div class="nav">
+<!-- Modal : éditer les bankrolls -->
+<div class="modal-overlay" id="br-modal" style="display:none">
+  <div class="modal" style="width:380px">
+    <h3>Bankrolls par site (€)</h3>
+    <div class="br-grid" id="br-edit-grid"></div>
+    <div class="modal-btns" style="margin-top:16px">
+      <button class="btn primary sm" onclick="saveBankrolls()">Enregistrer</button>
+      <button class="btn sm" onclick="closeModal('br-modal')">Annuler</button>
+    </div>
+  </div>
+</div>
+
+<nav id="main-nav">
   <button class="nav-btn active" onclick="showPage('session',this)">♠ Session</button>
   <button class="nav-btn" onclick="showPage('history',this)">Historique</button>
   <button class="nav-btn" onclick="showPage('stats',this)">Stats</button>
   <button class="nav-btn" onclick="showPage('sites',this)">Par site</button>
-  <button class="nav-btn" onclick="showPage('api',this)">API / Stream Deck</button>
-</div>
+  <button class="nav-btn" onclick="showPage('export',this)">Export / API</button>
+  <div class="nav-bankrolls" id="nav-bankrolls"></div>
+  <div class="conn-wrap">
+    <span id="conn-dot" class="conn-dot"></span>
+    <span id="conn-label">...</span>
+  </div>
+</nav>
 
 <!-- SESSION -->
 <div class="page active" id="page-session">
   <div class="metrics">
-    <div class="metric"><div class="metric-label">Buy-ins session</div><div class="metric-value" id="s-buyin">€0</div></div>
-    <div class="metric"><div class="metric-label">MTT joués</div><div class="metric-value" id="s-mtt">0</div></div>
-    <div class="metric"><div class="metric-label">Bankroll totale</div><div class="metric-value" id="s-bankroll">€0</div></div>
-    <div class="metric"><div class="metric-label">P&L all-time</div><div class="metric-value" id="s-pnl">€0</div></div>
+    <div class="metric"><div class="metric-label">Buy-ins session</div><div class="metric-value" id="m-buyin">€0</div></div>
+    <div class="metric"><div class="metric-label">MTT session</div><div class="metric-value" id="m-mtt">0</div></div>
+    <div class="metric"><div class="metric-label">ABI session</div><div class="metric-value" id="m-abi">—</div></div>
+    <div class="metric"><div class="metric-label">P&L all-time</div><div class="metric-value" id="m-pnl">€0</div></div>
+    <div class="metric"><div class="metric-label">Sessions totales</div><div class="metric-value" id="m-total">0</div></div>
   </div>
-  <div class="panel">
-    <div class="panel-title">Buy-ins rapides</div>
+
+  <div class="card">
+    <div class="card-title">Buy-ins rapides</div>
     <div id="buyin-grid"></div>
-    <div style="height:10px"></div>
-    <div class="recap" id="session-recap"><span class="recap-tag">Aucun buy-in enregistré</span></div>
+    <div class="manual-row">
+      <label>Montant manuel :</label>
+      <select id="manual-site">
+        <option value="wina">Winamax</option>
+        <option value="ps">PokerStars</option>
+        <option value="pmu">PMU Poker</option>
+        <option value="bet">Betclic</option>
+        <option value="uni">Unibet</option>
+      </select>
+      <input type="number" id="manual-amount" placeholder="ex: 1 ou 100" step="0.01" min="0.01">
+      <button class="btn-add" onclick="addManualBuyin()">+ Ajouter</button>
+    </div>
+    <div class="recap" id="recap"><span style="color:var(--text3);font-size:13px">Aucun buy-in enregistré</span></div>
   </div>
-  <div class="panel">
-    <div class="panel-title">Clôturer la session</div>
-    <div class="close-row">
-      <div class="input-group"><label>Date</label><input type="date" id="close-date" style="width:148px"></div>
-      <div class="input-group"><label>Résultat net (€)</label><input type="number" id="close-result" placeholder="ex: 145 ou -60" step="0.01" style="width:170px"></div>
-      <div class="input-group"><label>Note</label><input type="text" id="close-note" placeholder="Optionnel" style="width:160px"></div>
-      <button class="btn btn-primary" onclick="closeSession()">Enregistrer</button>
-      <button class="btn btn-ghost" onclick="resetSession()">Reset session</button>
+
+  <div class="card">
+    <div class="card-title">Clôturer la session</div>
+    <div class="form-row">
+      <div class="fg"><label>Date</label><input type="date" id="close-date" style="width:148px"></div>
+      <div class="fg"><label>Résultat net (€)</label><input type="number" id="close-result" placeholder="ex: 145 ou -60" step="0.01" style="width:168px"></div>
+      <div class="fg"><label>Note</label><input type="text" id="close-note" placeholder="Optionnel" style="width:168px"></div>
+      <button class="btn primary" onclick="closeSession()">Enregistrer</button>
+      <button class="btn danger" onclick="resetSession()">Reset session</button>
     </div>
   </div>
 </div>
 
 <!-- HISTORY -->
 <div class="page" id="page-history">
-  <div class="month-filter">
-    <label style="font-size:13px;color:var(--muted)">Mois :</label>
-    <select id="hist-month" onchange="renderHistory()"></select>
-    <button class="btn btn-ghost" style="padding:7px 12px" onclick="document.getElementById('hist-month').value='all';renderHistory()">Tout</button>
-    <button class="btn btn-primary" style="padding:7px 12px;margin-left:auto" onclick="exportCSV()">⬇ Export CSV</button>
+  <div style="display:flex;gap:8px;align-items:center;margin-bottom:12px">
+    <select id="hist-month" onchange="renderHistory()" style="width:180px"></select>
+    <button class="btn" onclick="document.getElementById('hist-month').value='all';renderHistory()">Tout afficher</button>
   </div>
-  <div class="panel">
-    <div class="panel-title">Sessions</div>
-    <div class="hist-list" id="history-list"></div>
+  <div class="card">
+    <div class="card-title">Sessions</div>
+    <div class="hist-list" id="hist-list"><div class="empty">Aucune session</div></div>
   </div>
-  <div class="panel">
-    <div class="panel-title">Récap mensuel</div>
-    <table class="tbl" id="month-table"></table>
+  <div class="card">
+    <div class="card-title">Récap mensuel</div>
+    <table class="mtable" id="month-table"></table>
   </div>
 </div>
 
 <!-- STATS -->
 <div class="page" id="page-stats">
-  <div class="metrics" style="grid-template-columns:repeat(3,1fr)">
-    <div class="metric"><div class="metric-label">Sessions totales</div><div class="metric-value" id="st-sessions">0</div></div>
-    <div class="metric"><div class="metric-label">Buy-ins totaux</div><div class="metric-value" id="st-buyin">€0</div></div>
-    <div class="metric"><div class="metric-label">ROI moyen</div><div class="metric-value" id="st-roi">—</div></div>
-    <div class="metric"><div class="metric-label">Profit / Perte total</div><div class="metric-value" id="st-pnl">€0</div></div>
+  <div class="stats-grid">
+    <div class="metric"><div class="metric-label">Sessions</div><div class="metric-value" id="st-n">0</div></div>
+    <div class="metric"><div class="metric-label">Buy-ins totaux</div><div class="metric-value" id="st-bi">€0</div></div>
+    <div class="metric"><div class="metric-label">Résultat total</div><div class="metric-value" id="st-res">€0</div></div>
+    <div class="metric"><div class="metric-label">ROI global</div><div class="metric-value" id="st-roi">0%</div></div>
     <div class="metric"><div class="metric-label">Meilleure session</div><div class="metric-value pos" id="st-best">€0</div></div>
     <div class="metric"><div class="metric-label">Pire session</div><div class="metric-value neg" id="st-worst">€0</div></div>
   </div>
-  <div class="panel">
-    <div class="panel-title">Courbe P&L cumulée</div>
-    <div class="chart-wrap" style="height:220px"><canvas id="main-chart"></canvas></div>
+  <div class="card">
+    <div class="card-title">Courbe cumulative</div>
+    <div class="chart-wrap"><canvas id="chart-cum"></canvas></div>
   </div>
-  <div class="charts-row">
-    <div class="panel" style="margin-bottom:0">
-      <div class="panel-title">Résultats par session</div>
-      <div class="chart-wrap" style="height:160px"><canvas id="bar-chart"></canvas></div>
-    </div>
-    <div class="panel" style="margin-bottom:0">
-      <div class="panel-title">Buy-ins par mois</div>
-      <div class="chart-wrap" style="height:160px"><canvas id="month-chart"></canvas></div>
-    </div>
+  <div class="card">
+    <div class="card-title">Résultats par session</div>
+    <div class="chart-wrap" style="height:160px"><canvas id="chart-bar"></canvas></div>
   </div>
 </div>
 
 <!-- SITES -->
 <div class="page" id="page-sites">
-  <div class="sites-grid" id="sites-grid"></div>
-  <div class="panel">
-    <div class="panel-title">MTT joués par site</div>
-    <div class="chart-wrap" style="height:200px"><canvas id="site-chart"></canvas></div>
+  <div class="site-breakdown" id="site-breakdown"></div>
+  <div class="card">
+    <div class="card-title">MTT joués par site</div>
+    <div class="chart-wrap" style="height:200px"><canvas id="chart-sites"></canvas></div>
   </div>
 </div>
 
-<!-- API -->
-<div class="page" id="page-api">
-  <div class="panel">
-    <div class="panel-title">Endpoints Stream Deck</div>
-    <p style="font-size:13px;color:var(--muted);margin-bottom:1rem">Utilise ces URLs dans ton Stream Deck via le plugin <strong style="color:var(--text)">HTTP Request</strong> ou <strong style="color:var(--text)">API Ninja</strong>. Remplace <code style="color:#7a9fd4">TON-DOMAINE</code> par l'URL de ton app Railway.</p>
-    <div id="api-endpoints"></div>
+<!-- EXPORT -->
+<div class="page" id="page-export">
+  <div class="export-card">
+    <div class="export-title">Export CSV</div>
+    <div class="export-desc">Toutes les sessions, format compatible Google Sheets.</div>
+    <button class="btn primary" onclick="exportCSV()">Télécharger CSV</button>
   </div>
-  <div class="panel">
-    <div class="panel-title">URL de base</div>
-    <input type="text" id="base-url" value="" placeholder="https://ton-app.railway.app" style="width:100%;margin-bottom:8px" oninput="renderAPIDoc()">
-    <p style="font-size:12px;color:var(--muted)">Entre l'URL de ton app déployée pour générer les URLs Stream Deck exactes.</p>
+  <div class="export-card">
+    <div class="export-title">Endpoints Stream Deck</div>
+    <div class="export-desc">URLs à coller dans API Ninja.</div>
+    <div id="endpoint-list"></div>
+  </div>
+  <div class="export-card">
+    <div class="export-title">Données JSON</div>
+    <textarea id="json-out" readonly rows="6"></textarea>
+    <div style="display:flex;gap:8px;margin-top:8px">
+      <button class="btn" onclick="copyJSON()">Copier</button>
+      <button class="btn danger" onclick="clearData()">Effacer tout</button>
+    </div>
   </div>
 </div>
 
-</div>
-<div class="toast" id="toast"></div>
-
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 <script>
 const SITES = [
-  {id:'wina',name:'Winamax',color:'#FF6B00'},
-  {id:'ps',  name:'PokerStars',color:'#E8002D'},
-  {id:'pmu', name:'PMU Poker',color:'#4a90d9'},
-  {id:'bet', name:'Betclic',color:'#F5A623'},
-  {id:'uni', name:'Unibet',color:'#00A0DC'},
+  {id:'wina', name:'Winamax',    color:'#FF6B00'},
+  {id:'ps',   name:'PokerStars', color:'#E8002D'},
+  {id:'pmu',  name:'PMU Poker',  color:'#4472CA'},
+  {id:'bet',  name:'Betclic',    color:'#F5A623'},
+  {id:'uni',  name:'Unibet',     color:'#00A0DC'},
 ];
-const AMOUNTS=[2,5,10,20,50];
-let state={sessions:[],currentSession:{buyins:{},mtt:{},history:[]},initialBankroll:0};
-let charts={};
-let polling;
+const BUYINS = [2,5,10,20,50];
 
-function toast(msg,ok=true){const t=document.getElementById('toast');t.textContent=msg;t.style.background=ok?'#1db87a':'#e85555';t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2200)}
-function fmt(v){return (v>=0?'+':'')+v.toFixed(2)+'€'}
+let currentSession = {};
+let allSessions = [];
+let charts = {};
+let ws;
+let editingSite = null;
 
-async function api(path,opts={}){
-  try{
-    const r=await fetch(path,{headers:{'Content-Type':'application/json'},...opts});
-    return r.json();
-  }catch(e){return null}
+let bankrolls = JSON.parse(localStorage.getItem('pk_bankrolls') || '{}');
+SITES.forEach(s => { if (bankrolls[s.id] === undefined) bankrolls[s.id] = 0; });
+
+const BASE = window.location.origin;
+
+// ── WebSocket ─────────────────────────────────────────────────
+function connectWS() {
+  const proto = location.protocol === 'https:' ? 'wss' : 'ws';
+  ws = new WebSocket(`${proto}://${location.host}`);
+  ws.onopen = () => setConn(true);
+  ws.onclose = () => { setConn(false); setTimeout(connectWS, 3000); };
+  ws.onmessage = e => {
+    const msg = JSON.parse(e.data);
+    if (msg.type === 'SESSION_UPDATE') { currentSession = msg.session; updateSessionUI(); }
+    if (msg.type === 'SESSION_CLOSED' || msg.type === 'SESSIONS_UPDATED') loadSessions();
+  };
+}
+function setConn(on) {
+  document.getElementById('conn-dot').classList.toggle('on', on);
+  document.getElementById('conn-label').textContent = on ? 'Connecté' : 'Déconnecté';
 }
 
-async function fetchState(){
-  const d=await api('/api/state');
-  if(!d)return;
-  state=d;
-  if(!state.currentSession) state.currentSession={buyins:{},mtt:{},history:[]};
-  SITES.forEach(s=>{
-    if(!state.currentSession.buyins[s.id]) state.currentSession.buyins[s.id]=0;
-    if(!state.currentSession.mtt[s.id])   state.currentSession.mtt[s.id]=0;
+// ── Bankrolls ─────────────────────────────────────────────────
+function saveBankrollsLocal() { localStorage.setItem('pk_bankrolls', JSON.stringify(bankrolls)); }
+
+function renderNavBankrolls() {
+  const total = SITES.reduce((a, s) => a + (bankrolls[s.id] || 0), 0);
+  document.getElementById('nav-bankrolls').innerHTML =
+    SITES.map(s => `
+      <div class="nav-br-item">
+        <span class="nav-br-dot" style="background:${s.color}"></span>
+        <span>${s.name.split(' ')[0]}</span>
+        <span class="nav-br-val">€${(bankrolls[s.id]||0).toFixed(0)}</span>
+      </div>
+    `).join('') +
+    `<div class="nav-br-total">Total €${total.toFixed(0)}</div>` +
+    `<button class="nav-br-edit" onclick="openBrModal()">Modifier</button>`;
+}
+
+function openBrModal() {
+  document.getElementById('br-edit-grid').innerHTML = SITES.map(s => `
+    <div class="fg">
+      <label style="display:flex;align-items:center;gap:6px">
+        <span style="width:8px;height:8px;border-radius:50%;background:${s.color};display:inline-block;flex-shrink:0"></span>
+        ${s.name}
+      </label>
+      <input type="number" id="br-${s.id}" value="${(bankrolls[s.id]||0).toFixed(2)}" step="0.01" min="0">
+    </div>
+  `).join('');
+  document.getElementById('br-modal').style.display = 'flex';
+}
+
+function saveBankrolls() {
+  SITES.forEach(s => {
+    const v = parseFloat(document.getElementById('br-'+s.id).value);
+    bankrolls[s.id] = isNaN(v) ? 0 : v;
   });
-  document.getElementById('last-update').textContent='Sync: '+new Date().toLocaleTimeString('fr-FR');
+  saveBankrollsLocal();
+  renderNavBankrolls();
+  closeModal('br-modal');
+}
+
+function closeModal(id) { document.getElementById(id).style.display = 'none'; }
+
+// ── Data ──────────────────────────────────────────────────────
+async function loadSession() {
+  const r = await fetch(`${BASE}/api/session`);
+  currentSession = await r.json();
   updateSessionUI();
 }
 
-async function addBuyin(site,amount){
-  const d=await api(`/api/buyin?site=${site}&amount=${amount}`,{method:'POST'});
-  if(d?.ok){
-    state.currentSession.buyins[site]=(state.currentSession.buyins[site]||0)+amount;
-    state.currentSession.mtt[site]=(state.currentSession.mtt[site]||0)+1;
-    const btn=document.getElementById(`bb-${site}-${amount}`);
-    if(btn){btn.classList.add('flash');setTimeout(()=>btn.classList.remove('flash'),400);}
-    updateSessionUI();
-  }
+async function loadSessions() {
+  const r = await fetch(`${BASE}/api/sessions`);
+  allSessions = await r.json();
+  const page = document.querySelector('.page.active').id;
+  if (page === 'page-history') renderHistory();
+  if (page === 'page-stats') renderStats();
+  if (page === 'page-sites') renderSites();
+  updateGlobalMetrics();
 }
 
-async function undoBuyin(site){
-  const d=await api('/api/undo',{method:'POST'});
-  if(d?.ok){toast('Annulé : '+d.undone?.site+' €'+d.undone?.amount);}
-  else{toast('Rien à annuler',false);}
-  await fetchState();
-}
-
-async function closeSession(){
-  const result=parseFloat(document.getElementById('close-result').value);
-  if(isNaN(result)){toast('Entrez un résultat net.',false);return;}
-  const date=document.getElementById('close-date').value||new Date().toISOString().split('T')[0];
-  const note=document.getElementById('close-note').value;
-  const d=await api('/api/session/close',{method:'POST',body:JSON.stringify({result,date,note})});
-  if(d?.ok){
-    toast('Session enregistrée !');
-    document.getElementById('close-result').value='';
-    document.getElementById('close-note').value='';
-    await fetchState();
-  }else toast('Erreur',false);
-}
-
-async function resetSession(){
-  if(!confirm('Réinitialiser la session en cours ?'))return;
-  await api('/api/session/reset',{method:'POST'});
-  toast('Session réinitialisée');
-  await fetchState();
-}
-
-async function delSession(id){
-  if(!confirm('Supprimer cette session ?'))return;
-  await api('/api/session/'+id,{method:'DELETE'});
-  await fetchState();
-  renderHistory();
-}
-
-async function exportCSV(){window.open('/api/export/csv','_blank');}
-
-function buildBuyinGrid(){
-  const el=document.getElementById('buyin-grid');
-  el.innerHTML=SITES.map(s=>`
-    <div class="buyin-site">
-      <div class="buyin-site-label">
+// ── Session UI ────────────────────────────────────────────────
+function buildBuyinGrid() {
+  document.getElementById('buyin-grid').innerHTML = SITES.map(s => `
+    <div class="site-section">
+      <div class="site-label">
         <span class="site-dot" style="background:${s.color}"></span>
-        <span style="color:${s.color}">${s.name}</span>
-        <span id="lbl-${s.id}" style="color:#7a82a0;font-size:12px;font-weight:400">— 0 MTT · €0</span>
+        <strong>${s.name}</strong>
+        <span class="site-counter" id="ctr-${s.id}">MTT: 0 · €0.00</span>
+        <span class="site-abi" id="abi-${s.id}"></span>
+        <button class="edit-site-btn" onclick="openEditSite('${s.id}')">Modifier</button>
       </div>
-      <div class="buyin-btns">
-        ${AMOUNTS.map(v=>`<button class="buyin-btn" id="bb-${s.id}-${v}" onclick="addBuyin('${s.id}',${v})">€${v}<span class="sub">${s.name.split(' ')[0]}</span></button>`).join('')}
-        <button class="undo-btn" onclick="undoBuyin('${s.id}')">↩<span style="font-size:9px">undo</span></button>
+      <div class="buyin-row">
+        ${BUYINS.map(v => `
+          <button class="buyin-btn" id="bb-${s.id}-${v}" onclick="addBuyin('${s.id}',${v})">
+            €${v}<span class="sub">${s.name.split(' ')[0]}</span>
+          </button>`).join('')}
+        <button class="undo-btn" onclick="undoBuyin('${s.id}')">↩<span style="font-size:9px;display:block">undo</span></button>
       </div>
     </div>
   `).join('');
 }
 
-function updateSessionUI(){
-  let tb=0,tm=0;
-  SITES.forEach(s=>{
-    const b=state.currentSession.buyins[s.id]||0,m=state.currentSession.mtt[s.id]||0;
-    tb+=b;tm+=m;
-    const l=document.getElementById('lbl-'+s.id);
-    if(l)l.textContent=`— ${m} MTT · €${b.toFixed(2)}`;
+async function addBuyin(site, amount) {
+  const r = await fetch(`${BASE}/api/buyin`, {
+    method:'POST', headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({site, amount})
   });
-  document.getElementById('s-buyin').textContent='€'+tb.toFixed(2);
-  document.getElementById('s-mtt').textContent=tm;
-  const pnl=state.sessions.reduce((a,s)=>a+s.result,0);
-  const bk=state.initialBankroll+pnl;
-  document.getElementById('s-bankroll').textContent='€'+bk.toFixed(2);
-  const pe=document.getElementById('s-pnl');
-  pe.textContent=fmt(pnl);pe.className='metric-value '+(pnl>=0?'pos':'neg');
-
-  const recap=document.getElementById('session-recap');
-  if(tm===0){recap.innerHTML='<span class="recap-tag">Aucun buy-in enregistré</span>';return;}
-  recap.innerHTML=SITES.filter(s=>state.currentSession.mtt[s.id]>0).map(s=>`
-    <span class="recap-tag"><strong style="color:${s.color}">${s.name}</strong>: ${state.currentSession.mtt[s.id]} MTT · €${(state.currentSession.buyins[s.id]||0).toFixed(2)}</span>
-  `).join('')+`<span class="recap-total">Total: ${tm} MTT · €${tb.toFixed(2)}</span>`;
+  const data = await r.json();
+  currentSession = data.session;
+  const btn = document.getElementById(`bb-${site}-${amount}`);
+  if (btn) { btn.classList.remove('flash'); void btn.offsetWidth; btn.classList.add('flash'); }
+  updateSessionUI();
 }
 
-function fmtMonth(m){const[y,mo]=m.split('-');const n=['Jan','Fév','Mar','Avr','Mai','Jun','Jul','Aoû','Sep','Oct','Nov','Déc'];return n[parseInt(mo)-1]+' '+y;}
+async function addManualBuyin() {
+  const site = document.getElementById('manual-site').value;
+  const amount = parseFloat(document.getElementById('manual-amount').value);
+  if (isNaN(amount) || amount <= 0) { alert('Montant invalide.'); return; }
+  await addBuyin(site, amount);
+  document.getElementById('manual-amount').value = '';
+}
 
-function showPage(id,btn){
+async function undoBuyin(site) {
+  const input = prompt('Montant du buy-in à annuler (€) ?');
+  if (!input) return;
+  const amount = parseFloat(input);
+  if (isNaN(amount)) return;
+  const r = await fetch(`${BASE}/api/buyin/undo`, {
+    method:'POST', headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({site, amount})
+  });
+  const data = await r.json();
+  currentSession = data.session;
+  updateSessionUI();
+}
+
+// ── Edit site ─────────────────────────────────────────────────
+function openEditSite(siteId) {
+  editingSite = siteId;
+  const site = SITES.find(s => s.id === siteId);
+  document.getElementById('edit-modal-title').textContent = `Modifier — ${site.name}`;
+  document.getElementById('edit-mtt').value = currentSession.mtt?.[siteId] || 0;
+  document.getElementById('edit-buyin').value = (currentSession.buyins?.[siteId] || 0).toFixed(2);
+  document.getElementById('edit-modal').style.display = 'flex';
+}
+
+async function saveEditSite() {
+  const mtt = parseInt(document.getElementById('edit-mtt').value) || 0;
+  const buyin = parseFloat(document.getElementById('edit-buyin').value) || 0;
+  if (!currentSession.mtt) currentSession.mtt = {};
+  if (!currentSession.buyins) currentSession.buyins = {};
+  currentSession.mtt[editingSite] = mtt;
+  currentSession.buyins[editingSite] = buyin;
+  await fetch(`${BASE}/api/session/set`, {
+    method:'POST', headers:{'Content-Type':'application/json'},
+    body: JSON.stringify(currentSession)
+  });
+  updateSessionUI();
+  closeModal('edit-modal');
+}
+
+function updateSessionUI() {
+  let totalBuyin = 0, totalMTT = 0;
+  SITES.forEach(s => {
+    const b = currentSession.buyins?.[s.id] || 0;
+    const m = currentSession.mtt?.[s.id] || 0;
+    totalBuyin += b; totalMTT += m;
+    const abi = m > 0 ? b / m : 0;
+    const c = document.getElementById('ctr-'+s.id);
+    const a = document.getElementById('abi-'+s.id);
+    if (c) c.textContent = `MTT: ${m} · €${b.toFixed(2)}`;
+    if (a) a.textContent = m > 0 ? `· ABI: €${abi.toFixed(2)}` : '';
+  });
+
+  const globalAbi = totalMTT > 0 ? totalBuyin / totalMTT : 0;
+  document.getElementById('m-buyin').textContent = '€'+totalBuyin.toFixed(2);
+  document.getElementById('m-mtt').textContent = totalMTT;
+  document.getElementById('m-abi').textContent = totalMTT > 0 ? '€'+globalAbi.toFixed(2) : '—';
+
+  const active = SITES.filter(s => (currentSession.mtt?.[s.id] || 0) > 0);
+  const recap = document.getElementById('recap');
+  if (!active.length) {
+    recap.innerHTML = '<span style="color:var(--text3);font-size:13px">Aucun buy-in enregistré</span>';
+    return;
+  }
+  const totalAbi = totalMTT > 0 ? totalBuyin / totalMTT : 0;
+  recap.innerHTML = active.map(s => {
+    const m = currentSession.mtt[s.id];
+    const b = currentSession.buyins[s.id] || 0;
+    const abi = m > 0 ? b / m : 0;
+    return `<div class="recap-item">
+      <strong style="color:${s.color}">${s.name}</strong>: ${m} MTT · €${b.toFixed(2)}
+      <span class="recap-abi">ABI €${abi.toFixed(2)}</span>
+    </div>`;
+  }).join('') +
+  `<div class="recap-total">${totalMTT} MTT · €${totalBuyin.toFixed(2)} · ABI €${totalAbi.toFixed(2)}</div>`;
+}
+
+function updateGlobalMetrics() {
+  const pnl = allSessions.reduce((a,s) => a + s.result, 0);
+  const el = document.getElementById('m-pnl');
+  el.textContent = (pnl >= 0 ? '+' : '') + '€' + pnl.toFixed(2);
+  el.className = 'metric-value ' + (pnl >= 0 ? 'pos' : 'neg');
+  document.getElementById('m-total').textContent = allSessions.length;
+}
+
+async function closeSession() {
+  const result = parseFloat(document.getElementById('close-result').value);
+  if (isNaN(result)) { alert('Résultat invalide.'); return; }
+  await fetch(`${BASE}/api/session/close`, {
+    method:'POST', headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({
+      result,
+      date: document.getElementById('close-date').value,
+      note: document.getElementById('close-note').value
+    })
+  });
+  document.getElementById('close-result').value = '';
+  document.getElementById('close-note').value = '';
+  await loadSessions();
+  alert('Session enregistrée !');
+}
+
+async function resetSession() {
+  if (!confirm('Réinitialiser la session en cours ?')) return;
+  await fetch(`${BASE}/api/session`, {method:'DELETE'});
+}
+
+// ── History ───────────────────────────────────────────────────
+function renderHistory() {
+  const sel = document.getElementById('hist-month');
+  const months = [...new Set(allSessions.map(s => s.date.slice(0,7)))].sort().reverse();
+  const cur = sel.value;
+  sel.innerHTML = '<option value="all">Tous les mois</option>' +
+    months.map(m => `<option value="${m}">${fmtMonth(m)}</option>`).join('');
+  if (cur) sel.value = cur;
+  const filter = sel.value;
+  const filtered = allSessions
+    .filter(s => filter === 'all' || s.date.startsWith(filter))
+    .sort((a,b) => b.date.localeCompare(a.date));
+
+  const list = document.getElementById('hist-list');
+  if (!filtered.length) { list.innerHTML = '<div class="empty">Aucune session</div>'; }
+  else list.innerHTML = filtered.map(s => `
+    <div class="hist-row">
+      <div class="hist-date">${s.date}</div>
+      <div class="hist-tags">
+        ${SITES.filter(si => s.sites?.[si.id]?.mtt > 0).map(si =>
+          `<span class="hist-tag" style="border-color:${si.color};color:${si.color}">${si.name.split(' ')[0]}: ${s.sites[si.id].mtt} · €${s.sites[si.id].buyin.toFixed(0)}</span>`
+        ).join('')}
+        ${s.note ? `<span class="hist-tag">${s.note}</span>` : ''}
+      </div>
+      <div class="hist-result ${s.result>=0?'pos':'neg'}">${s.result>=0?'+':''}€${s.result.toFixed(2)}</div>
+      <span class="hist-del" onclick="delSession(${s.id})">✕</span>
+    </div>
+  `).join('');
+
+  const byMonth = {};
+  allSessions.forEach(s => {
+    const m = s.date.slice(0,7);
+    if (!byMonth[m]) byMonth[m] = {result:0,buyin:0,mtt:0,sessions:0};
+    byMonth[m].result += s.result; byMonth[m].buyin += s.total_buyin;
+    byMonth[m].mtt += s.total_mtt; byMonth[m].sessions++;
+  });
+  const mkeys = Object.keys(byMonth).sort().reverse();
+  document.getElementById('month-table').innerHTML =
+    '<thead><tr><th>Mois</th><th>Sessions</th><th>MTT</th><th>Buy-ins</th><th>ABI</th><th>Résultat</th><th>ROI</th></tr></thead><tbody>' +
+    mkeys.map(m => {
+      const d = byMonth[m];
+      const roi = d.buyin > 0 ? ((d.result/d.buyin)*100).toFixed(1) : '-';
+      const abi = d.mtt > 0 ? (d.buyin/d.mtt).toFixed(2) : '-';
+      return `<tr>
+        <td>${fmtMonth(m)}</td><td>${d.sessions}</td><td>${d.mtt}</td>
+        <td>€${d.buyin.toFixed(2)}</td><td>€${abi}</td>
+        <td class="${d.result>=0?'pos':'neg'}">${d.result>=0?'+':''}€${d.result.toFixed(2)}</td>
+        <td class="${parseFloat(roi)>=0?'pos':'neg'}">${roi}%</td>
+      </tr>`;
+    }).join('') + '</tbody>';
+}
+
+async function delSession(id) {
+  if (!confirm('Supprimer cette session ?')) return;
+  await fetch(`${BASE}/api/sessions/${id}`, {method:'DELETE'});
+  await loadSessions();
+}
+
+// ── Stats ─────────────────────────────────────────────────────
+function renderStats() {
+  const ss = allSessions;
+  if (!ss.length) return;
+  const totalBuyin = ss.reduce((a,s) => a+s.total_buyin, 0);
+  const totalResult = ss.reduce((a,s) => a+s.result, 0);
+  const roi = totalBuyin > 0 ? ((totalResult/totalBuyin)*100).toFixed(1) : 0;
+  document.getElementById('st-n').textContent = ss.length;
+  document.getElementById('st-bi').textContent = '€'+totalBuyin.toFixed(2);
+  setValEl('st-res', totalResult);
+  setRoiEl('st-roi', roi);
+  document.getElementById('st-best').textContent = '+€'+Math.max(...ss.map(s=>s.result)).toFixed(2);
+  document.getElementById('st-worst').textContent = '€'+Math.min(...ss.map(s=>s.result)).toFixed(2);
+
+  const sorted = [...ss].sort((a,b) => a.date.localeCompare(b.date));
+  let cum = 0; const cumData = [0]; const cumLabels = ['Départ'];
+  sorted.forEach(s => { cum += s.result; cumData.push(+cum.toFixed(2)); cumLabels.push(s.date.slice(5)); });
+
+  if (charts.cum) charts.cum.destroy();
+  charts.cum = new Chart(document.getElementById('chart-cum'), {
+    type:'line', data:{labels:cumLabels, datasets:[{data:cumData,
+      borderColor:cum>=0?'#1D9E75':'#E24B4A', backgroundColor:cum>=0?'rgba(29,158,117,0.1)':'rgba(226,75,74,0.1)',
+      fill:true, tension:0.35, pointRadius:cumData.length<=20?3:0, borderWidth:2}]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},
+      scales:{x:{ticks:{color:'#5f5e5a',font:{size:10},maxTicksLimit:10},grid:{display:false}},
+              y:{ticks:{color:'#5f5e5a',font:{size:10},callback:v=>'€'+v},grid:{color:'rgba(255,255,255,0.05)'}}}}
+  });
+
+  if (charts.bar) charts.bar.destroy();
+  charts.bar = new Chart(document.getElementById('chart-bar'), {
+    type:'bar', data:{labels:sorted.map(s=>s.date.slice(5)),
+      datasets:[{data:sorted.map(s=>s.result),
+        backgroundColor:sorted.map(s=>s.result>=0?'rgba(29,158,117,0.7)':'rgba(226,75,74,0.7)'), borderRadius:3}]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},
+      scales:{x:{ticks:{color:'#5f5e5a',font:{size:10},autoSkip:true,maxTicksLimit:12},grid:{display:false}},
+              y:{ticks:{color:'#5f5e5a',font:{size:10},callback:v=>'€'+v},grid:{color:'rgba(255,255,255,0.05)'}}}}
+  });
+}
+
+// ── Sites ─────────────────────────────────────────────────────
+function renderSites() {
+  document.getElementById('site-breakdown').innerHTML = SITES.map(s => {
+    const sessions = allSessions.filter(x => x.sites?.[s.id]?.mtt > 0);
+    const totalMTT = sessions.reduce((a,x) => a+(x.sites[s.id]?.mtt||0), 0);
+    const totalBuyin = sessions.reduce((a,x) => a+(x.sites[s.id]?.buyin||0), 0);
+    const abi = totalMTT > 0 ? (totalBuyin/totalMTT).toFixed(2) : '-';
+    return `<div class="sb">
+      <div class="sb-head"><span class="site-dot" style="background:${s.color}"></span>${s.name.split(' ')[0]}</div>
+      <div class="sb-row">Sessions <span>${sessions.length}</span></div>
+      <div class="sb-row">MTT <span>${totalMTT}</span></div>
+      <div class="sb-row">Buy-ins <span>€${totalBuyin.toFixed(0)}</span></div>
+      <div class="sb-row">ABI <span>€${abi}</span></div>
+    </div>`;
+  }).join('');
+
+  if (charts.sites) charts.sites.destroy();
+  charts.sites = new Chart(document.getElementById('chart-sites'), {
+    type:'bar',
+    data:{labels:SITES.map(s=>s.name),
+      datasets:[{data:SITES.map(s=>allSessions.reduce((a,x)=>a+(x.sites?.[s.id]?.mtt||0),0)),
+        backgroundColor:SITES.map(s=>s.color+'bb'), borderRadius:4}]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},
+      scales:{x:{ticks:{color:'#9c9a92',font:{size:12}},grid:{display:false}},
+              y:{ticks:{color:'#5f5e5a',font:{size:11}},grid:{color:'rgba(255,255,255,0.05)'}}}}
+  });
+}
+
+// ── Export ────────────────────────────────────────────────────
+function renderExport() {
+  document.getElementById('json-out').value = JSON.stringify(allSessions, null, 2);
+  document.getElementById('endpoint-list').innerHTML =
+    SITES.flatMap(s => BUYINS.map(v =>
+      `<div class="endpoint"><span class="method">POST</span>${BASE}/api/buyin?site=${s.id}&amount=${v}</div>`
+    )).join('') +
+    `<div class="endpoint"><span class="method del">DELETE</span>${BASE}/api/session — Reset session courante</div>`;
+}
+
+function exportCSV() {
+  const header = 'Date,Résultat,Buy-ins,MTT,ABI,'+SITES.map(s=>s.name+' MTT,'+s.name+' Buyin').join(',')+',Note';
+  const rows = [...allSessions].sort((a,b)=>a.date.localeCompare(b.date)).map(s => {
+    const abi = s.total_mtt > 0 ? (s.total_buyin/s.total_mtt).toFixed(2) : 0;
+    return [s.date,s.result,s.total_buyin,s.total_mtt,abi,
+      ...SITES.flatMap(si=>[(s.sites?.[si.id]?.mtt||0),(s.sites?.[si.id]?.buyin||0)]),
+      s.note||''
+    ].join(',');
+  });
+  const blob = new Blob([header+'\n'+rows.join('\n')], {type:'text/csv;charset=utf-8'});
+  const a = document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='poker_sessions.csv'; a.click();
+}
+
+function copyJSON() { navigator.clipboard.writeText(document.getElementById('json-out').value).then(()=>alert('Copié !')); }
+
+async function clearData() {
+  if (!confirm('Supprimer TOUTES les données ? Irréversible.')) return;
+  for (const s of allSessions) await fetch(`${BASE}/api/sessions/${s.id}`, {method:'DELETE'});
+  allSessions = []; updateGlobalMetrics();
+}
+
+// ── Nav ───────────────────────────────────────────────────────
+function showPage(id, btn) {
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
   document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
   document.getElementById('page-'+id).classList.add('active');
   btn.classList.add('active');
-  if(id==='history')renderHistory();
-  if(id==='stats')renderStats();
-  if(id==='sites')renderSites();
-  if(id==='api')renderAPIDoc();
+  if (id==='history') renderHistory();
+  if (id==='stats') renderStats();
+  if (id==='sites') renderSites();
+  if (id==='export') renderExport();
 }
 
-function renderHistory(){
-  const sel=document.getElementById('hist-month');
-  const months=[...new Set(state.sessions.map(s=>s.date.slice(0,7)))].sort().reverse();
-  const cur=sel.value;
-  sel.innerHTML='<option value="all">Tous les mois</option>'+months.map(m=>`<option value="${m}">${fmtMonth(m)}</option>`).join('');
-  if(cur)sel.value=cur;
-  const flt=sel.value;
-  let filtered=[...state.sessions].filter(s=>flt==='all'||s.date.startsWith(flt)).sort((a,b)=>b.date.localeCompare(a.date));
-  const list=document.getElementById('history-list');
-  if(!filtered.length){list.innerHTML='<div class="empty">Aucune session</div>';
-  }else list.innerHTML=filtered.map(s=>`
-    <div class="hist-row">
-      <div class="hist-date">${s.date}</div>
-      <div class="hist-tags">
-        ${SITES.filter(si=>s.sites?.[si.id]?.mtt>0).map(si=>`<span class="hist-tag" style="border-color:${si.color}40;color:${si.color}">${si.name.split(' ')[0]}: ${s.sites[si.id].mtt} · €${s.sites[si.id].buyin.toFixed(0)}</span>`).join('')}
-        ${s.note?`<span class="hist-tag">${s.note}</span>`:''}
-      </div>
-      <div class="hist-result ${s.result>=0?'pos':'neg'}">${fmt(s.result)}</div>
-      <span class="del-btn" onclick="delSession(${s.id})">✕</span>
-    </div>
-  `).join('');
-
-  const byMonth={};
-  state.sessions.forEach(s=>{
-    const m=s.date.slice(0,7);
-    if(!byMonth[m])byMonth[m]={result:0,buyin:0,mtt:0,sessions:0};
-    byMonth[m].result+=s.result;byMonth[m].buyin+=s.totalBuyin;byMonth[m].mtt+=s.totalMTT;byMonth[m].sessions++;
-  });
-  const tbl=document.getElementById('month-table');
-  const mkeys=Object.keys(byMonth).sort().reverse();
-  tbl.innerHTML='<thead><tr><th>Mois</th><th>Sessions</th><th>MTT</th><th>Buy-ins</th><th>Résultat</th><th>ROI</th></tr></thead><tbody>'+
-    mkeys.map(m=>{const d=byMonth[m];const roi=d.buyin>0?((d.result/d.buyin)*100).toFixed(1):'-';
-    return`<tr><td>${fmtMonth(m)}</td><td>${d.sessions}</td><td>${d.mtt}</td><td>€${d.buyin.toFixed(0)}</td><td class="${d.result>=0?'pos':'neg'}">${fmt(d.result)}</td><td class="${parseFloat(roi)>=0?'pos':'neg'}">${roi}%</td></tr>`;}
-  ).join('')+'</tbody>';
+// ── Utils ─────────────────────────────────────────────────────
+function fmtMonth(m) {
+  const [y,mo]=m.split('-');
+  return ['Jan','Fév','Mar','Avr','Mai','Jun','Jul','Aoû','Sep','Oct','Nov','Déc'][parseInt(mo)-1]+' '+y;
+}
+function setValEl(id, v) {
+  const el=document.getElementById(id);
+  el.textContent=(v>=0?'+':'')+'€'+v.toFixed(2);
+  el.className='metric-value '+(v>=0?'pos':'neg');
+}
+function setRoiEl(id, v) {
+  const el=document.getElementById(id);
+  el.textContent=(parseFloat(v)>=0?'+':'')+v+'%';
+  el.className='metric-value '+(parseFloat(v)>=0?'pos':'neg');
 }
 
-function renderStats(){
-  const ss=state.sessions;
-  if(!ss.length)return;
-  const tb=ss.reduce((a,s)=>a+s.totalBuyin,0);
-  const tr=ss.reduce((a,s)=>a+s.result,0);
-  const roi=tb>0?((tr/tb)*100).toFixed(1):'N/A';
-  document.getElementById('st-sessions').textContent=ss.length;
-  document.getElementById('st-buyin').textContent='€'+tb.toFixed(0);
-  document.getElementById('st-roi').textContent=(parseFloat(roi)>=0?'+':'')+roi+'%';
-  document.getElementById('st-roi').className='metric-value '+(parseFloat(roi)>=0?'pos':'neg');
-  document.getElementById('st-pnl').textContent=fmt(tr);
-  document.getElementById('st-pnl').className='metric-value '+(tr>=0?'pos':'neg');
-  document.getElementById('st-best').textContent='+€'+Math.max(...ss.map(s=>s.result)).toFixed(2);
-  document.getElementById('st-worst').textContent='€'+Math.min(...ss.map(s=>s.result)).toFixed(2);
-
-  const sorted=[...ss].sort((a,b)=>a.date.localeCompare(b.date));
-  let cum=0;const cumData=[0];const cumLabels=['—'];
-  sorted.forEach(s=>{cum+=s.result;cumData.push(parseFloat(cum.toFixed(2)));cumLabels.push(s.date.slice(5));});
-  const isPos=cum>=0;
-  if(charts.main)charts.main.destroy();
-  charts.main=new Chart(document.getElementById('main-chart'),{type:'line',data:{labels:cumLabels,datasets:[{data:cumData,borderColor:isPos?'#1db87a':'#e85555',backgroundColor:isPos?'rgba(29,184,122,0.12)':'rgba(232,85,85,0.1)',fill:true,tension:0.35,pointRadius:cumData.length<=20?3:0,borderWidth:2}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{ticks:{color:'#7a82a0',font:{size:10},maxTicksLimit:10,autoSkip:true},grid:{color:'rgba(255,255,255,0.04)'}},y:{ticks:{color:'#7a82a0',font:{size:10},callback:v=>'€'+v},grid:{color:'rgba(255,255,255,0.04)'}}}}});
-
-  if(charts.bar)charts.bar.destroy();
-  charts.bar=new Chart(document.getElementById('bar-chart'),{type:'bar',data:{labels:sorted.map(s=>s.date.slice(5)),datasets:[{data:sorted.map(s=>s.result),backgroundColor:sorted.map(s=>s.result>=0?'rgba(29,184,122,0.7)':'rgba(232,85,85,0.7)'),borderRadius:3}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{ticks:{color:'#7a82a0',font:{size:9},autoSkip:true,maxTicksLimit:10},grid:{display:false}},y:{ticks:{color:'#7a82a0',font:{size:9},callback:v=>'€'+v},grid:{color:'rgba(255,255,255,0.04)'}}}}});
-
-  const byMonth={};
-  ss.forEach(s=>{const m=s.date.slice(0,7);if(!byMonth[m])byMonth[m]=0;byMonth[m]+=s.totalBuyin;});
-  const mkeys=Object.keys(byMonth).sort();
-  if(charts.month)charts.month.destroy();
-  charts.month=new Chart(document.getElementById('month-chart'),{type:'bar',data:{labels:mkeys.map(fmtMonth),datasets:[{data:mkeys.map(m=>byMonth[m]),backgroundColor:'rgba(74,144,217,0.7)',borderRadius:3}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{ticks:{color:'#7a82a0',font:{size:9}},grid:{display:false}},y:{ticks:{color:'#7a82a0',font:{size:9},callback:v=>'€'+v},grid:{color:'rgba(255,255,255,0.04)'}}}}});
-}
-
-function renderSites(){
-  const el=document.getElementById('sites-grid');
-  el.innerHTML=SITES.map(s=>{
-    const sss=state.sessions.filter(x=>x.sites?.[s.id]?.mtt>0);
-    const tm=sss.reduce((a,x)=>a+(x.sites[s.id].mtt||0),0);
-    const tb=sss.reduce((a,x)=>a+(x.sites[s.id].buyin||0),0);
-    return`<div class="site-card">
-      <div class="sc-header"><span class="site-dot" style="background:${s.color}"></span><span class="sc-name">${s.name}</span></div>
-      <div class="sc-row">Sessions <span>${sss.length}</span></div>
-      <div class="sc-row">MTT <span>${tm}</span></div>
-      <div class="sc-row">Buy-ins <span>€${tb.toFixed(0)}</span></div>
-    </div>`;
-  }).join('');
-
-  const siteMTT=SITES.map(s=>state.sessions.reduce((a,x)=>a+(x.sites?.[s.id]?.mtt||0),0));
-  if(charts.site)charts.site.destroy();
-  charts.site=new Chart(document.getElementById('site-chart'),{type:'bar',data:{labels:SITES.map(s=>s.name),datasets:[{data:siteMTT,backgroundColor:SITES.map(s=>s.color+'bb'),borderRadius:4}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{ticks:{color:'#7a82a0',font:{size:12}},grid:{display:false}},y:{ticks:{color:'#7a82a0',font:{size:11}},grid:{color:'rgba(255,255,255,0.04)'}}}}});
-}
-
-function renderAPIDoc(){
-  const base=document.getElementById('base-url').value||'https://ton-app.railway.app';
-  const endpoints=[
-    {method:'POST',path:'/api/buyin?site=wina&amount=5',desc:'Ajouter un buy-in 5€ sur Winamax',sites:true},
-    {method:'POST',path:'/api/buyin?site=ps&amount=10',desc:'Ajouter un buy-in 10€ sur PokerStars'},
-    {method:'POST',path:'/api/undo',desc:'Annuler le dernier buy-in'},
-    {method:'GET', path:'/api/state',desc:'Récupérer l\'état complet (JSON)'},
-    {method:'GET', path:'/api/export/csv',desc:'Télécharger l\'export CSV'},
-  ];
-  const el=document.getElementById('api-endpoints');
-  el.innerHTML=endpoints.map(e=>`
-    <div class="api-block">
-      <span class="api-method">${e.method}</span><span class="api-url">${base}${e.path}</span>
-      <div class="api-desc">${e.desc}</div>
-      <div class="api-example">${e.method==='POST'?`curl -X POST "${base}${e.path}"`:`curl "${base}${e.path}"`}<button class="copy-btn" onclick="copyText('${e.method==='POST'?`curl -X POST \\"${base}${e.path}\\"`:``}${e.method==='GET'?`curl "${base}${e.path}"`:``}')">copier</button></div>
-    </div>
-  `).join('')+`
-  <div style="margin-top:12px;padding:12px;background:var(--bg3);border-radius:var(--radius);font-size:12px;color:var(--muted)">
-    <strong style="color:var(--text)">Sites valides :</strong> wina, ps, pmu, bet, uni &nbsp;·&nbsp;
-    <strong style="color:var(--text)">Montants valides :</strong> 2, 5, 10, 20, 50
-  </div>`;
-}
-
-function copyText(t){navigator.clipboard.writeText(t).then(()=>toast('Copié !'));}
-
-// Init
-document.getElementById('close-date').value=new Date().toISOString().split('T')[0];
+// ── Init ──────────────────────────────────────────────────────
+document.getElementById('close-date').value = new Date().toISOString().split('T')[0];
 buildBuyinGrid();
-fetchState();
-polling=setInterval(fetchState,5000);
+renderNavBankrolls();
+connectWS();
+loadSession();
+loadSessions();
 </script>
 </body>
 </html>
