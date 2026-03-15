@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Poker Bankroll Tracker</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0f1117;--bg2:#1a1d27;--bg3:#22263a;--border:#2e3347;
+  --text:#e8eaf0;--muted:#7a82a0;--green:#1db87a;--red:#e85555;
+  --wina:#FF6B00;--ps:#E8002D;--pmu:#4a90d9;--bet:#F5A623;--uni:#00A0DC;
+  --radius:10px;--radius-lg:14px;
+}
+body{background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;min-height:100vh}
+.app{max-width:1100px;margin:0 auto;padding:1.5rem 1rem}
+
+/* HEADER */
+.header{display:flex;align-items:center;justify-content:space-between;margin-bottom:1.5rem}
+.logo{display:flex;align-items:center;gap:10px}
+.logo h1{font-size:20px;font-weight:600;letter-spacing:-.3px}
+.suits{display:flex;gap:4px;font-size:18px}
+.status-dot{width:8px;height:8px;border-radius:50%;background:var(--green);animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+
+/* NAV */
+.nav{display:flex;gap:4px;margin-bottom:1.25rem;background:var(--bg2);padding:5px;border-radius:var(--radius-lg)}
+.nav-btn{flex:1;padding:8px 12px;border:none;border-radius:var(--radius);font-size:13px;cursor:pointer;background:transparent;color:var(--muted);font-weight:500;transition:all .15s}
+.nav-btn.active{background:var(--bg3);color:var(--text)}
+.nav-btn:hover:not(.active){color:var(--text)}
+
+/* METRICS */
+.metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:1.25rem}
+.metric{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-lg);padding:14px}
+.metric-label{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px}
+.metric-value{font-size:22px;font-weight:600}
+.pos{color:var(--green)}.neg{color:var(--red)}
+
+/* PANEL */
+.panel{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-lg);padding:1.25rem;margin-bottom:1rem}
+.panel-title{font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.07em;margin-bottom:1rem}
+
+/* BUY-IN GRID */
+.buyin-site{margin-bottom:14px}
+.buyin-site:last-child{margin-bottom:0}
+.buyin-site-label{font-size:13px;font-weight:500;margin-bottom:8px;display:flex;align-items:center;gap:7px}
+.site-dot{width:9px;height:9px;border-radius:50%}
+.buyin-btns{display:flex;gap:7px;flex-wrap:wrap}
+.buyin-btn{width:58px;height:58px;border-radius:var(--radius);border:1px solid var(--border);font-size:16px;font-weight:700;cursor:pointer;background:var(--bg3);color:var(--text);transition:transform .1s,border-color .1s,background .1s;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px}
+.buyin-btn:hover{border-color:#4a5270;background:#2a2f48}
+.buyin-btn:active{transform:scale(0.9)}
+.buyin-btn .sub{font-size:9px;color:var(--muted);font-weight:400}
+.buyin-btn.flash{background:#1a3a2a;border-color:var(--green)}
+.undo-btn{width:58px;height:58px;border-radius:var(--radius);border:1px solid var(--border);font-size:11px;cursor:pointer;background:var(--bg3);color:var(--muted);transition:all .15s;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px}
+.undo-btn:hover{color:var(--red);border-color:var(--red)}
+
+/* RECAP */
+.recap{display:flex;flex-wrap:wrap;gap:8px;padding:10px 14px;background:var(--bg3);border-radius:var(--radius);border:1px solid var(--border)}
+.recap-tag{font-size:12px;color:var(--muted)}
+.recap-tag strong{color:var(--text);font-weight:600}
+.recap-total{margin-left:auto;font-size:13px;font-weight:600;color:var(--text)}
+
+/* CLOSE SESSION */
+.close-row{display:flex;gap:8px;flex-wrap:wrap;align-items:flex-end}
+.input-group{display:flex;flex-direction:column;gap:5px}
+.input-group label{font-size:12px;color:var(--muted)}
+input,select{padding:9px 12px;font-size:14px;border:1px solid var(--border);border-radius:var(--radius);background:var(--bg3);color:var(--text);font-family:inherit;outline:none}
+input:focus,select:focus{border-color:#4a5270}
+input::placeholder{color:var(--muted)}
+.btn{padding:9px 18px;border:1px solid var(--border);border-radius:var(--radius);font-size:13px;font-weight:500;cursor:pointer;font-family:inherit;transition:all .15s}
+.btn-primary{background:var(--green);color:#fff;border-color:var(--green)}
+.btn-primary:hover{background:#17a06a}
+.btn-ghost{background:transparent;color:var(--muted)}
+.btn-ghost:hover{color:var(--red);border-color:var(--red)}
+.btn-danger{background:transparent;color:var(--red);border-color:var(--red)}
+.btn-danger:hover{background:#2a1515}
+
+/* HISTORY */
+.hist-list{display:flex;flex-direction:column;gap:5px;max-height:340px;overflow-y:auto}
+.hist-row{display:flex;align-items:center;gap:8px;padding:9px 12px;background:var(--bg3);border-radius:var(--radius);font-size:12px}
+.hist-date{color:var(--muted);min-width:78px}
+.hist-tags{flex:1;display:flex;gap:5px;flex-wrap:wrap}
+.hist-tag{padding:2px 7px;border-radius:5px;font-size:11px;background:var(--bg2);border:1px solid var(--border);color:var(--muted)}
+.hist-result{font-weight:600;min-width:70px;text-align:right}
+.del-btn{color:var(--muted);cursor:pointer;opacity:.5;font-size:11px;margin-left:4px}
+.del-btn:hover{opacity:1;color:var(--red)}
+
+/* MONTH TABLE */
+.tbl{width:100%;border-collapse:collapse;font-size:13px}
+.tbl th{font-size:11px;color:var(--muted);text-align:left;padding:7px 10px;border-bottom:1px solid var(--border);font-weight:500}
+.tbl td{padding:8px 10px;border-bottom:1px solid var(--border)}
+.tbl tr:last-child td{border-bottom:none}
+.tbl tr:hover td{background:var(--bg3)}
+
+/* CHARTS */
+.chart-wrap{position:relative;width:100%}
+.charts-row{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1rem}
+
+/* SITE CARDS */
+.sites-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-bottom:1rem}
+.site-card{background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius-lg);padding:12px}
+.sc-header{display:flex;align-items:center;gap:7px;margin-bottom:10px}
+.sc-name{font-size:12px;font-weight:600}
+.sc-row{display:flex;justify-content:space-between;font-size:12px;color:var(--muted);margin-bottom:3px}
+.sc-row span{color:var(--text);font-weight:500}
+
+/* API DOCS */
+.api-block{background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);padding:12px;margin-bottom:8px}
+.api-method{font-size:11px;font-weight:700;padding:2px 7px;border-radius:4px;background:#1a3a2a;color:var(--green);margin-right:8px}
+.api-url{font-size:13px;font-family:monospace;color:var(--text)}
+.api-desc{font-size:12px;color:var(--muted);margin-top:6px}
+.api-example{font-size:11px;font-family:monospace;color:#7a9fd4;margin-top:4px;background:var(--bg2);padding:8px;border-radius:6px;white-space:pre-wrap;word-break:break-all}
+.copy-btn{font-size:11px;color:var(--muted);cursor:pointer;float:right;padding:2px 6px;border:1px solid var(--border);border-radius:4px;background:transparent;font-family:inherit}
+.copy-btn:hover{color:var(--text)}
+
+.empty{color:var(--muted);font-size:13px;text-align:center;padding:1.5rem 0}
+.page{display:none}.page.active{display:block}
+.toast{position:fixed;bottom:20px;right:20px;background:var(--green);color:#fff;padding:10px 18px;border-radius:var(--radius);font-size:13px;font-weight:500;opacity:0;transform:translateY(10px);transition:all .25s;pointer-events:none;z-index:999}
+.toast.show{opacity:1;transform:translateY(0)}
+.month-filter{display:flex;gap:8px;align-items:center;margin-bottom:1rem}
+.month-filter select{flex:none;width:160px}
+</style>
+</head>
+<body>
+<div class="app">
+
+<div class="header">
+  <div class="logo">
+    <div class="suits"><span>♠</span><span style="color:var(--red)">♥</span></div>
+    <h1>Poker Bankroll Tracker</h1>
+    <div class="status-dot" title="Connecté"></div>
+  </div>
+  <div style="font-size:12px;color:var(--muted)" id="last-update">—</div>
+</div>
+
+<div class="nav">
+  <button class="nav-btn active" onclick="showPage('session',this)">♠ Session</button>
+  <button class="nav-btn" onclick="showPage('history',this)">Historique</button>
+  <button class="nav-btn" onclick="showPage('stats',this)">Stats</button>
+  <button class="nav-btn" onclick="showPage('sites',this)">Par site</button>
+  <button class="nav-btn" onclick="showPage('api',this)">API / Stream Deck</button>
+</div>
+
+<!-- SESSION -->
+<div class="page active" id="page-session">
+  <div class="metrics">
+    <div class="metric"><div class="metric-label">Buy-ins session</div><div class="metric-value" id="s-buyin">€0</div></div>
+    <div class="metric"><div class="metric-label">MTT joués</div><div class="metric-value" id="s-mtt">0</div></div>
+    <div class="metric"><div class="metric-label">Bankroll totale</div><div class="metric-value" id="s-bankroll">€0</div></div>
+    <div class="metric"><div class="metric-label">P&L all-time</div><div class="metric-value" id="s-pnl">€0</div></div>
+  </div>
+  <div class="panel">
+    <div class="panel-title">Buy-ins rapides</div>
+    <div id="buyin-grid"></div>
+    <div style="height:10px"></div>
+    <div class="recap" id="session-recap"><span class="recap-tag">Aucun buy-in enregistré</span></div>
+  </div>
+  <div class="panel">
+    <div class="panel-title">Clôturer la session</div>
+    <div class="close-row">
+      <div class="input-group"><label>Date</label><input type="date" id="close-date" style="width:148px"></div>
+      <div class="input-group"><label>Résultat net (€)</label><input type="number" id="close-result" placeholder="ex: 145 ou -60" step="0.01" style="width:170px"></div>
+      <div class="input-group"><label>Note</label><input type="text" id="close-note" placeholder="Optionnel" style="width:160px"></div>
+      <button class="btn btn-primary" onclick="closeSession()">Enregistrer</button>
+      <button class="btn btn-ghost" onclick="resetSession()">Reset session</button>
+    </div>
+  </div>
+</div>
+
+<!-- HISTORY -->
+<div class="page" id="page-history">
+  <div class="month-filter">
+    <label style="font-size:13px;color:var(--muted)">Mois :</label>
+    <select id="hist-month" onchange="renderHistory()"></select>
+    <button class="btn btn-ghost" style="padding:7px 12px" onclick="document.getElementById('hist-month').value='all';renderHistory()">Tout</button>
+    <button class="btn btn-primary" style="padding:7px 12px;margin-left:auto" onclick="exportCSV()">⬇ Export CSV</button>
+  </div>
+  <div class="panel">
+    <div class="panel-title">Sessions</div>
+    <div class="hist-list" id="history-list"></div>
+  </div>
+  <div class="panel">
+    <div class="panel-title">Récap mensuel</div>
+    <table class="tbl" id="month-table"></table>
+  </div>
+</div>
+
+<!-- STATS -->
+<div class="page" id="page-stats">
+  <div class="metrics" style="grid-template-columns:repeat(3,1fr)">
+    <div class="metric"><div class="metric-label">Sessions totales</div><div class="metric-value" id="st-sessions">0</div></div>
+    <div class="metric"><div class="metric-label">Buy-ins totaux</div><div class="metric-value" id="st-buyin">€0</div></div>
+    <div class="metric"><div class="metric-label">ROI moyen</div><div class="metric-value" id="st-roi">—</div></div>
+    <div class="metric"><div class="metric-label">Profit / Perte total</div><div class="metric-value" id="st-pnl">€0</div></div>
+    <div class="metric"><div class="metric-label">Meilleure session</div><div class="metric-value pos" id="st-best">€0</div></div>
+    <div class="metric"><div class="metric-label">Pire session</div><div class="metric-value neg" id="st-worst">€0</div></div>
+  </div>
+  <div class="panel">
+    <div class="panel-title">Courbe P&L cumulée</div>
+    <div class="chart-wrap" style="height:220px"><canvas id="main-chart"></canvas></div>
+  </div>
+  <div class="charts-row">
+    <div class="panel" style="margin-bottom:0">
+      <div class="panel-title">Résultats par session</div>
+      <div class="chart-wrap" style="height:160px"><canvas id="bar-chart"></canvas></div>
+    </div>
+    <div class="panel" style="margin-bottom:0">
+      <div class="panel-title">Buy-ins par mois</div>
+      <div class="chart-wrap" style="height:160px"><canvas id="month-chart"></canvas></div>
+    </div>
+  </div>
+</div>
+
+<!-- SITES -->
+<div class="page" id="page-sites">
+  <div class="sites-grid" id="sites-grid"></div>
+  <div class="panel">
+    <div class="panel-title">MTT joués par site</div>
+    <div class="chart-wrap" style="height:200px"><canvas id="site-chart"></canvas></div>
+  </div>
+</div>
+
+<!-- API -->
+<div class="page" id="page-api">
+  <div class="panel">
+    <div class="panel-title">Endpoints Stream Deck</div>
+    <p style="font-size:13px;color:var(--muted);margin-bottom:1rem">Utilise ces URLs dans ton Stream Deck via le plugin <strong style="color:var(--text)">HTTP Request</strong> ou <strong style="color:var(--text)">API Ninja</strong>. Remplace <code style="color:#7a9fd4">TON-DOMAINE</code> par l'URL de ton app Railway.</p>
+    <div id="api-endpoints"></div>
+  </div>
+  <div class="panel">
+    <div class="panel-title">URL de base</div>
+    <input type="text" id="base-url" value="" placeholder="https://ton-app.railway.app" style="width:100%;margin-bottom:8px" oninput="renderAPIDoc()">
+    <p style="font-size:12px;color:var(--muted)">Entre l'URL de ton app déployée pour générer les URLs Stream Deck exactes.</p>
+  </div>
+</div>
+
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+const SITES = [
+  {id:'wina',name:'Winamax',color:'#FF6B00'},
+  {id:'ps',  name:'PokerStars',color:'#E8002D'},
+  {id:'pmu', name:'PMU Poker',color:'#4a90d9'},
+  {id:'bet', name:'Betclic',color:'#F5A623'},
+  {id:'uni', name:'Unibet',color:'#00A0DC'},
+];
+const AMOUNTS=[2,5,10,20,50];
+let state={sessions:[],currentSession:{buyins:{},mtt:{},history:[]},initialBankroll:0};
+let charts={};
+let polling;
+
+function toast(msg,ok=true){const t=document.getElementById('toast');t.textContent=msg;t.style.background=ok?'#1db87a':'#e85555';t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2200)}
+function fmt(v){return (v>=0?'+':'')+v.toFixed(2)+'€'}
+
+async function api(path,opts={}){
+  try{
+    const r=await fetch(path,{headers:{'Content-Type':'application/json'},...opts});
+    return r.json();
+  }catch(e){return null}
+}
+
+async function fetchState(){
+  const d=await api('/api/state');
+  if(!d)return;
+  state=d;
+  if(!state.currentSession) state.currentSession={buyins:{},mtt:{},history:[]};
+  SITES.forEach(s=>{
+    if(!state.currentSession.buyins[s.id]) state.currentSession.buyins[s.id]=0;
+    if(!state.currentSession.mtt[s.id])   state.currentSession.mtt[s.id]=0;
+  });
+  document.getElementById('last-update').textContent='Sync: '+new Date().toLocaleTimeString('fr-FR');
+  updateSessionUI();
+}
+
+async function addBuyin(site,amount){
+  const d=await api(`/api/buyin?site=${site}&amount=${amount}`,{method:'POST'});
+  if(d?.ok){
+    state.currentSession.buyins[site]=(state.currentSession.buyins[site]||0)+amount;
+    state.currentSession.mtt[site]=(state.currentSession.mtt[site]||0)+1;
+    const btn=document.getElementById(`bb-${site}-${amount}`);
+    if(btn){btn.classList.add('flash');setTimeout(()=>btn.classList.remove('flash'),400);}
+    updateSessionUI();
+  }
+}
+
+async function undoBuyin(site){
+  const d=await api('/api/undo',{method:'POST'});
+  if(d?.ok){toast('Annulé : '+d.undone?.site+' €'+d.undone?.amount);}
+  else{toast('Rien à annuler',false);}
+  await fetchState();
+}
+
+async function closeSession(){
+  const result=parseFloat(document.getElementById('close-result').value);
+  if(isNaN(result)){toast('Entrez un résultat net.',false);return;}
+  const date=document.getElementById('close-date').value||new Date().toISOString().split('T')[0];
+  const note=document.getElementById('close-note').value;
+  const d=await api('/api/session/close',{method:'POST',body:JSON.stringify({result,date,note})});
+  if(d?.ok){
+    toast('Session enregistrée !');
+    document.getElementById('close-result').value='';
+    document.getElementById('close-note').value='';
+    await fetchState();
+  }else toast('Erreur',false);
+}
+
+async function resetSession(){
+  if(!confirm('Réinitialiser la session en cours ?'))return;
+  await api('/api/session/reset',{method:'POST'});
+  toast('Session réinitialisée');
+  await fetchState();
+}
+
+async function delSession(id){
+  if(!confirm('Supprimer cette session ?'))return;
+  await api('/api/session/'+id,{method:'DELETE'});
+  await fetchState();
+  renderHistory();
+}
+
+async function exportCSV(){window.open('/api/export/csv','_blank');}
+
+function buildBuyinGrid(){
+  const el=document.getElementById('buyin-grid');
+  el.innerHTML=SITES.map(s=>`
+    <div class="buyin-site">
+      <div class="buyin-site-label">
+        <span class="site-dot" style="background:${s.color}"></span>
+        <span style="color:${s.color}">${s.name}</span>
+        <span id="lbl-${s.id}" style="color:#7a82a0;font-size:12px;font-weight:400">— 0 MTT · €0</span>
+      </div>
+      <div class="buyin-btns">
+        ${AMOUNTS.map(v=>`<button class="buyin-btn" id="bb-${s.id}-${v}" onclick="addBuyin('${s.id}',${v})">€${v}<span class="sub">${s.name.split(' ')[0]}</span></button>`).join('')}
+        <button class="undo-btn" onclick="undoBuyin('${s.id}')">↩<span style="font-size:9px">undo</span></button>
+      </div>
+    </div>
+  `).join('');
+}
+
+function updateSessionUI(){
+  let tb=0,tm=0;
+  SITES.forEach(s=>{
+    const b=state.currentSession.buyins[s.id]||0,m=state.currentSession.mtt[s.id]||0;
+    tb+=b;tm+=m;
+    const l=document.getElementById('lbl-'+s.id);
+    if(l)l.textContent=`— ${m} MTT · €${b.toFixed(2)}`;
+  });
+  document.getElementById('s-buyin').textContent='€'+tb.toFixed(2);
+  document.getElementById('s-mtt').textContent=tm;
+  const pnl=state.sessions.reduce((a,s)=>a+s.result,0);
+  const bk=state.initialBankroll+pnl;
+  document.getElementById('s-bankroll').textContent='€'+bk.toFixed(2);
+  const pe=document.getElementById('s-pnl');
+  pe.textContent=fmt(pnl);pe.className='metric-value '+(pnl>=0?'pos':'neg');
+
+  const recap=document.getElementById('session-recap');
+  if(tm===0){recap.innerHTML='<span class="recap-tag">Aucun buy-in enregistré</span>';return;}
+  recap.innerHTML=SITES.filter(s=>state.currentSession.mtt[s.id]>0).map(s=>`
+    <span class="recap-tag"><strong style="color:${s.color}">${s.name}</strong>: ${state.currentSession.mtt[s.id]} MTT · €${(state.currentSession.buyins[s.id]||0).toFixed(2)}</span>
+  `).join('')+`<span class="recap-total">Total: ${tm} MTT · €${tb.toFixed(2)}</span>`;
+}
+
+function fmtMonth(m){const[y,mo]=m.split('-');const n=['Jan','Fév','Mar','Avr','Mai','Jun','Jul','Aoû','Sep','Oct','Nov','Déc'];return n[parseInt(mo)-1]+' '+y;}
+
+function showPage(id,btn){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('page-'+id).classList.add('active');
+  btn.classList.add('active');
+  if(id==='history')renderHistory();
+  if(id==='stats')renderStats();
+  if(id==='sites')renderSites();
+  if(id==='api')renderAPIDoc();
+}
+
+function renderHistory(){
+  const sel=document.getElementById('hist-month');
+  const months=[...new Set(state.sessions.map(s=>s.date.slice(0,7)))].sort().reverse();
+  const cur=sel.value;
+  sel.innerHTML='<option value="all">Tous les mois</option>'+months.map(m=>`<option value="${m}">${fmtMonth(m)}</option>`).join('');
+  if(cur)sel.value=cur;
+  const flt=sel.value;
+  let filtered=[...state.sessions].filter(s=>flt==='all'||s.date.startsWith(flt)).sort((a,b)=>b.date.localeCompare(a.date));
+  const list=document.getElementById('history-list');
+  if(!filtered.length){list.innerHTML='<div class="empty">Aucune session</div>';
+  }else list.innerHTML=filtered.map(s=>`
+    <div class="hist-row">
+      <div class="hist-date">${s.date}</div>
+      <div class="hist-tags">
+        ${SITES.filter(si=>s.sites?.[si.id]?.mtt>0).map(si=>`<span class="hist-tag" style="border-color:${si.color}40;color:${si.color}">${si.name.split(' ')[0]}: ${s.sites[si.id].mtt} · €${s.sites[si.id].buyin.toFixed(0)}</span>`).join('')}
+        ${s.note?`<span class="hist-tag">${s.note}</span>`:''}
+      </div>
+      <div class="hist-result ${s.result>=0?'pos':'neg'}">${fmt(s.result)}</div>
+      <span class="del-btn" onclick="delSession(${s.id})">✕</span>
+    </div>
+  `).join('');
+
+  const byMonth={};
+  state.sessions.forEach(s=>{
+    const m=s.date.slice(0,7);
+    if(!byMonth[m])byMonth[m]={result:0,buyin:0,mtt:0,sessions:0};
+    byMonth[m].result+=s.result;byMonth[m].buyin+=s.totalBuyin;byMonth[m].mtt+=s.totalMTT;byMonth[m].sessions++;
+  });
+  const tbl=document.getElementById('month-table');
+  const mkeys=Object.keys(byMonth).sort().reverse();
+  tbl.innerHTML='<thead><tr><th>Mois</th><th>Sessions</th><th>MTT</th><th>Buy-ins</th><th>Résultat</th><th>ROI</th></tr></thead><tbody>'+
+    mkeys.map(m=>{const d=byMonth[m];const roi=d.buyin>0?((d.result/d.buyin)*100).toFixed(1):'-';
+    return`<tr><td>${fmtMonth(m)}</td><td>${d.sessions}</td><td>${d.mtt}</td><td>€${d.buyin.toFixed(0)}</td><td class="${d.result>=0?'pos':'neg'}">${fmt(d.result)}</td><td class="${parseFloat(roi)>=0?'pos':'neg'}">${roi}%</td></tr>`;}
+  ).join('')+'</tbody>';
+}
+
+function renderStats(){
+  const ss=state.sessions;
+  if(!ss.length)return;
+  const tb=ss.reduce((a,s)=>a+s.totalBuyin,0);
+  const tr=ss.reduce((a,s)=>a+s.result,0);
+  const roi=tb>0?((tr/tb)*100).toFixed(1):'N/A';
+  document.getElementById('st-sessions').textContent=ss.length;
+  document.getElementById('st-buyin').textContent='€'+tb.toFixed(0);
+  document.getElementById('st-roi').textContent=(parseFloat(roi)>=0?'+':'')+roi+'%';
+  document.getElementById('st-roi').className='metric-value '+(parseFloat(roi)>=0?'pos':'neg');
+  document.getElementById('st-pnl').textContent=fmt(tr);
+  document.getElementById('st-pnl').className='metric-value '+(tr>=0?'pos':'neg');
+  document.getElementById('st-best').textContent='+€'+Math.max(...ss.map(s=>s.result)).toFixed(2);
+  document.getElementById('st-worst').textContent='€'+Math.min(...ss.map(s=>s.result)).toFixed(2);
+
+  const sorted=[...ss].sort((a,b)=>a.date.localeCompare(b.date));
+  let cum=0;const cumData=[0];const cumLabels=['—'];
+  sorted.forEach(s=>{cum+=s.result;cumData.push(parseFloat(cum.toFixed(2)));cumLabels.push(s.date.slice(5));});
+  const isPos=cum>=0;
+  if(charts.main)charts.main.destroy();
+  charts.main=new Chart(document.getElementById('main-chart'),{type:'line',data:{labels:cumLabels,datasets:[{data:cumData,borderColor:isPos?'#1db87a':'#e85555',backgroundColor:isPos?'rgba(29,184,122,0.12)':'rgba(232,85,85,0.1)',fill:true,tension:0.35,pointRadius:cumData.length<=20?3:0,borderWidth:2}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{ticks:{color:'#7a82a0',font:{size:10},maxTicksLimit:10,autoSkip:true},grid:{color:'rgba(255,255,255,0.04)'}},y:{ticks:{color:'#7a82a0',font:{size:10},callback:v=>'€'+v},grid:{color:'rgba(255,255,255,0.04)'}}}}});
+
+  if(charts.bar)charts.bar.destroy();
+  charts.bar=new Chart(document.getElementById('bar-chart'),{type:'bar',data:{labels:sorted.map(s=>s.date.slice(5)),datasets:[{data:sorted.map(s=>s.result),backgroundColor:sorted.map(s=>s.result>=0?'rgba(29,184,122,0.7)':'rgba(232,85,85,0.7)'),borderRadius:3}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{ticks:{color:'#7a82a0',font:{size:9},autoSkip:true,maxTicksLimit:10},grid:{display:false}},y:{ticks:{color:'#7a82a0',font:{size:9},callback:v=>'€'+v},grid:{color:'rgba(255,255,255,0.04)'}}}}});
+
+  const byMonth={};
+  ss.forEach(s=>{const m=s.date.slice(0,7);if(!byMonth[m])byMonth[m]=0;byMonth[m]+=s.totalBuyin;});
+  const mkeys=Object.keys(byMonth).sort();
+  if(charts.month)charts.month.destroy();
+  charts.month=new Chart(document.getElementById('month-chart'),{type:'bar',data:{labels:mkeys.map(fmtMonth),datasets:[{data:mkeys.map(m=>byMonth[m]),backgroundColor:'rgba(74,144,217,0.7)',borderRadius:3}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{ticks:{color:'#7a82a0',font:{size:9}},grid:{display:false}},y:{ticks:{color:'#7a82a0',font:{size:9},callback:v=>'€'+v},grid:{color:'rgba(255,255,255,0.04)'}}}}});
+}
+
+function renderSites(){
+  const el=document.getElementById('sites-grid');
+  el.innerHTML=SITES.map(s=>{
+    const sss=state.sessions.filter(x=>x.sites?.[s.id]?.mtt>0);
+    const tm=sss.reduce((a,x)=>a+(x.sites[s.id].mtt||0),0);
+    const tb=sss.reduce((a,x)=>a+(x.sites[s.id].buyin||0),0);
+    return`<div class="site-card">
+      <div class="sc-header"><span class="site-dot" style="background:${s.color}"></span><span class="sc-name">${s.name}</span></div>
+      <div class="sc-row">Sessions <span>${sss.length}</span></div>
+      <div class="sc-row">MTT <span>${tm}</span></div>
+      <div class="sc-row">Buy-ins <span>€${tb.toFixed(0)}</span></div>
+    </div>`;
+  }).join('');
+
+  const siteMTT=SITES.map(s=>state.sessions.reduce((a,x)=>a+(x.sites?.[s.id]?.mtt||0),0));
+  if(charts.site)charts.site.destroy();
+  charts.site=new Chart(document.getElementById('site-chart'),{type:'bar',data:{labels:SITES.map(s=>s.name),datasets:[{data:siteMTT,backgroundColor:SITES.map(s=>s.color+'bb'),borderRadius:4}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{ticks:{color:'#7a82a0',font:{size:12}},grid:{display:false}},y:{ticks:{color:'#7a82a0',font:{size:11}},grid:{color:'rgba(255,255,255,0.04)'}}}}});
+}
+
+function renderAPIDoc(){
+  const base=document.getElementById('base-url').value||'https://ton-app.railway.app';
+  const endpoints=[
+    {method:'POST',path:'/api/buyin?site=wina&amount=5',desc:'Ajouter un buy-in 5€ sur Winamax',sites:true},
+    {method:'POST',path:'/api/buyin?site=ps&amount=10',desc:'Ajouter un buy-in 10€ sur PokerStars'},
+    {method:'POST',path:'/api/undo',desc:'Annuler le dernier buy-in'},
+    {method:'GET', path:'/api/state',desc:'Récupérer l\'état complet (JSON)'},
+    {method:'GET', path:'/api/export/csv',desc:'Télécharger l\'export CSV'},
+  ];
+  const el=document.getElementById('api-endpoints');
+  el.innerHTML=endpoints.map(e=>`
+    <div class="api-block">
+      <span class="api-method">${e.method}</span><span class="api-url">${base}${e.path}</span>
+      <div class="api-desc">${e.desc}</div>
+      <div class="api-example">${e.method==='POST'?`curl -X POST "${base}${e.path}"`:`curl "${base}${e.path}"`}<button class="copy-btn" onclick="copyText('${e.method==='POST'?`curl -X POST \\"${base}${e.path}\\"`:``}${e.method==='GET'?`curl "${base}${e.path}"`:``}')">copier</button></div>
+    </div>
+  `).join('')+`
+  <div style="margin-top:12px;padding:12px;background:var(--bg3);border-radius:var(--radius);font-size:12px;color:var(--muted)">
+    <strong style="color:var(--text)">Sites valides :</strong> wina, ps, pmu, bet, uni &nbsp;·&nbsp;
+    <strong style="color:var(--text)">Montants valides :</strong> 2, 5, 10, 20, 50
+  </div>`;
+}
+
+function copyText(t){navigator.clipboard.writeText(t).then(()=>toast('Copié !'));}
+
+// Init
+document.getElementById('close-date').value=new Date().toISOString().split('T')[0];
+buildBuyinGrid();
+fetchState();
+polling=setInterval(fetchState,5000);
+</script>
+</body>
+</html>
