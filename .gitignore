@@ -1,3 +1,4 @@
-node_modules/
-data/sessions.json
+poker.db
+*.db-shm
+*.db-wal
 .env
