@@ -13,7 +13,6 @@ app.use(cors());
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
-// ── Base de données ──────────────────────────────────────────────
 const db = new sqlite3.Database('./poker.db');
 
 db.serialize(() => {
@@ -32,8 +31,14 @@ db.serialize(() => {
     session_id INTEGER,
     site TEXT NOT NULL,
     mtt INTEGER DEFAULT 0,
-    buyin REAL DEFAULT 0
+    buyin REAL DEFAULT 0,
+    br_before REAL,
+    br_after REAL
   )`);
+  // Migration : ajouter colonnes si elles n'existent pas encore
+  db.run(`ALTER TABLE session_sites ADD COLUMN br_before REAL`, () => {});
+  db.run(`ALTER TABLE session_sites ADD COLUMN br_after REAL`, () => {});
+  db.run(`ALTER TABLE sessions ADD COLUMN duration_mins INTEGER`, () => {});
   db.run(`CREATE TABLE IF NOT EXISTS current_session (
     id INTEGER PRIMARY KEY CHECK (id = 1),
     data TEXT DEFAULT '{}'
@@ -41,7 +46,6 @@ db.serialize(() => {
   db.run(`INSERT OR IGNORE INTO current_session (id, data) VALUES (1, '{}')`);
 });
 
-// ── Helpers ──────────────────────────────────────────────────────
 function dbGet(sql, params=[]) {
   return new Promise((res, rej) => db.get(sql, params, (err, row) => err ? rej(err) : res(row)));
 }
@@ -123,7 +127,8 @@ app.delete('/api/session', async (req, res) => {
 });
 
 app.post('/api/session/close', async (req, res) => {
-  const { result, date, note, duration_mins } = req.body;
+  // br_snapshot = { wina: { before: 100, after: 150 }, ... }
+  const { result, date, note, duration_mins, br_snapshot } = req.body;
   if (isNaN(parseFloat(result))) return res.status(400).json({ error: 'Résultat invalide' });
   const session = await getCurrentSession();
   const totalBuyin = SITES.reduce((a, s) => a + (session.buyins?.[s] || 0), 0);
@@ -134,9 +139,16 @@ app.post('/api/session/close', async (req, res) => {
   );
   const sessionId = info.lastID;
   for (const s of SITES) {
-    if ((session.mtt?.[s] || 0) > 0)
-      await dbRun('INSERT INTO session_sites (session_id, site, mtt, buyin) VALUES (?,?,?,?)',
-        [sessionId, s, session.mtt[s], session.buyins[s]]);
+    const hasBuyin = (session.mtt?.[s] || 0) > 0;
+    const snap = br_snapshot?.[s];
+    const brBefore = snap?.before ?? null;
+    const brAfter = snap?.after ?? null;
+    if (hasBuyin || brBefore !== null || brAfter !== null) {
+      await dbRun(
+        'INSERT INTO session_sites (session_id, site, mtt, buyin, br_before, br_after) VALUES (?,?,?,?,?,?)',
+        [sessionId, s, session.mtt?.[s] || 0, session.buyins?.[s] || 0, brBefore, brAfter]
+      );
+    }
   }
   const empty = emptySession();
   await saveCurrentSession(empty);
@@ -150,7 +162,10 @@ app.get('/api/sessions', async (req, res) => {
   const withSites = await Promise.all(sessions.map(async s => {
     const sites = await dbAll('SELECT * FROM session_sites WHERE session_id=?', [s.id]);
     const sitesMap = {};
-    sites.forEach(ss => { sitesMap[ss.site] = { mtt: ss.mtt, buyin: ss.buyin }; });
+    sites.forEach(ss => {
+      const net = (ss.br_after !== null && ss.br_before !== null) ? ss.br_after - ss.br_before : null;
+      sitesMap[ss.site] = { mtt: ss.mtt, buyin: ss.buyin, br_before: ss.br_before, br_after: ss.br_after, net };
+    });
     return { ...s, sites: sitesMap };
   }));
   res.json(withSites);
