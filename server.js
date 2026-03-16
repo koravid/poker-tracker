@@ -70,7 +70,11 @@ function emptySession() {
 
 async function getCurrentSession() {
   const row = await dbGet('SELECT data FROM current_session WHERE id=1');
-  return JSON.parse(row.data);
+  const s = JSON.parse(row.data || '{}');
+  if (!s.buyins) s.buyins = {};
+  if (!s.mtt) s.mtt = {};
+  SITES.forEach(id => { if (s.buyins[id] === undefined) s.buyins[id] = 0; if (s.mtt[id] === undefined) s.mtt[id] = 0; });
+  return s;
 }
 async function saveCurrentSession(data) {
   await dbRun('UPDATE current_session SET data=? WHERE id=1', [JSON.stringify(data)]);
