@@ -12,74 +12,102 @@
   --text:#e8e6df;--text2:#9c9a92;--text3:#5f5e5a;
   --green:#1D9E75;--green-dim:#0a3d2b;
   --red:#E24B4A;--red-dim:#3d1010;
+  --amber:#EF9F27;--amber-dim:#2e2000;
+  --r:8px;--rl:12px;
 }
 body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
 
+/* NAV */
 nav{display:flex;align-items:center;padding:10px 16px;background:var(--bg2);border-bottom:1px solid var(--border);flex-wrap:wrap;gap:6px}
-.nav-btn{padding:7px 16px;border-radius:8px;font-size:13px;cursor:pointer;border:none;background:transparent;color:var(--text2);font-family:inherit;white-space:nowrap}
+.nav-btn{padding:7px 16px;border-radius:var(--r);font-size:13px;cursor:pointer;border:none;background:transparent;color:var(--text2);font-family:inherit;white-space:nowrap}
 .nav-btn:hover{background:var(--bg3);color:var(--text)}
 .nav-btn.active{background:var(--bg4);color:var(--text)}
-
 .nav-bankrolls{display:flex;align-items:center;gap:8px;margin-left:auto;flex-wrap:wrap}
 .nav-br-item{display:flex;align-items:center;gap:4px;font-size:12px;color:var(--text2)}
 .nav-br-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
 .nav-br-val{font-weight:600;color:var(--text)}
-.nav-br-total{font-size:13px;font-weight:700;color:var(--green);padding:4px 10px;background:var(--green-dim);border-radius:8px}
+.nav-br-total{font-size:13px;font-weight:700;color:var(--green);padding:4px 10px;background:var(--green-dim);border-radius:var(--r)}
 .nav-br-edit{font-size:11px;color:var(--text3);cursor:pointer;padding:3px 8px;border-radius:6px;border:1px solid var(--border);background:transparent;font-family:inherit;margin-left:2px}
 .nav-br-edit:hover{background:var(--bg3);color:var(--text2)}
 .conn-wrap{display:flex;align-items:center;gap:5px;font-size:12px;color:var(--text3);margin-left:8px}
 .conn-dot{width:7px;height:7px;border-radius:50%;background:var(--red);display:inline-block;transition:background .3s}
 .conn-dot.on{background:var(--green)}
 
+/* LAYOUT */
 .page{display:none;padding:16px;max-width:1100px;margin:0 auto}
 .page.active{display:block}
+.card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--rl);padding:14px 16px;margin-bottom:12px}
+.card-title{font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.07em;margin-bottom:14px}
 
-.metrics{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-bottom:14px}
-.metric{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:14px}
+/* METRICS */
+.metrics{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px}
+.metric{background:var(--bg2);border:1px solid var(--border);border-radius:var(--rl);padding:14px}
 .metric-label{font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:5px}
-.metric-value{font-size:20px;font-weight:600;color:var(--text)}
+.metric-value{font-size:22px;font-weight:600;color:var(--text)}
 .metric-value.pos{color:var(--green)}
 .metric-value.neg{color:var(--red)}
 
-.card{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:14px 16px;margin-bottom:12px}
-.card-title{font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.07em;margin-bottom:14px}
+/* SESSION TIMER */
+.timer-bar{display:flex;align-items:center;gap:12px;padding:10px 14px;background:var(--bg3);border-radius:var(--r);margin-bottom:12px;flex-wrap:wrap}
+.timer-status{font-size:13px;color:var(--text2)}
+.timer-clock{font-size:18px;font-weight:600;font-family:monospace;color:var(--amber);min-width:70px}
+.timer-clock.running{color:var(--green)}
+.btn-start{padding:8px 16px;border-radius:var(--r);font-size:13px;cursor:pointer;font-family:inherit;border:1px solid var(--green);background:var(--green-dim);color:var(--green);font-weight:500}
+.btn-start:hover{background:var(--green);color:#fff}
+.btn-start.active{border-color:var(--red);background:var(--red-dim);color:var(--red)}
+.btn-start.active:hover{background:var(--red);color:#fff}
+.timer-manual{display:flex;align-items:center;gap:6px;margin-left:auto}
+.timer-manual label{font-size:12px;color:var(--text3)}
 
-.site-section{margin-bottom:16px}
-.site-label{display:flex;align-items:center;gap:7px;font-size:13px;font-weight:500;margin-bottom:8px;flex-wrap:wrap}
-.site-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0}
-.site-counter{font-size:12px;color:var(--text2)}
-.site-abi{font-size:11px;color:var(--text3)}
-.edit-site-btn{font-size:11px;color:var(--text3);cursor:pointer;padding:2px 8px;border-radius:5px;border:1px solid var(--border);background:transparent;font-family:inherit}
+/* SITE SECTIONS */
+.site-section{margin-bottom:14px;padding-bottom:14px;border-bottom:1px solid var(--border)}
+.site-section:last-child{border-bottom:none;margin-bottom:0;padding-bottom:0}
+.site-header{display:flex;align-items:center;gap:8px;margin-bottom:10px;flex-wrap:wrap}
+.site-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+.site-name{font-size:15px;font-weight:600}
+.site-counter{font-size:13px;color:var(--text2);font-weight:500}
+.site-abi{font-size:12px;color:var(--text3);margin-left:2px}
+.edit-site-btn{font-size:11px;color:var(--text3);cursor:pointer;padding:2px 8px;border-radius:5px;border:1px solid var(--border);background:transparent;font-family:inherit;margin-left:auto}
 .edit-site-btn:hover{background:var(--bg3);color:var(--text2)}
 
-.buyin-row{display:flex;gap:7px;flex-wrap:wrap;align-items:center}
-.buyin-btn{width:62px;height:62px;border-radius:8px;border:1px solid var(--border2);font-size:16px;font-weight:600;cursor:pointer;background:var(--bg3);color:var(--text);font-family:inherit;transition:transform .08s,background .1s;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:2px}
+.buyin-row{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.buyin-btn{width:52px;height:52px;border-radius:var(--r);border:1px solid var(--border2);font-size:15px;font-weight:600;cursor:pointer;background:var(--bg3);color:var(--text);font-family:inherit;transition:transform .08s,background .1s;display:flex;align-items:center;justify-content:center}
 .buyin-btn:hover{background:var(--bg4);border-color:#555}
-.buyin-btn:active{transform:scale(0.9)}
-.buyin-btn .sub{font-size:9px;color:var(--text3);font-weight:400}
+.buyin-btn:active{transform:scale(0.88)}
 .buyin-btn.flash{animation:flash .35s ease}
 @keyframes flash{0%{background:#0a3d2b;border-color:var(--green)}100%{background:var(--bg3);border-color:var(--border2)}}
-.undo-btn{width:48px;height:62px;border-radius:8px;border:1px solid var(--border);font-size:13px;cursor:pointer;background:transparent;color:var(--text3);font-family:inherit;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:2px}
+.undo-btn{width:44px;height:52px;border-radius:var(--r);border:1px solid var(--border);font-size:16px;cursor:pointer;background:transparent;color:var(--text3);font-family:inherit;display:flex;align-items:center;justify-content:center}
 .undo-btn:hover{background:var(--red-dim);color:var(--red);border-color:var(--red)}
-
-.manual-row{display:flex;gap:8px;align-items:center;margin-top:10px;padding-top:12px;border-top:1px solid var(--border);flex-wrap:wrap}
-.manual-row label{font-size:12px;color:var(--text2);white-space:nowrap}
-.manual-row input{width:100px;padding:8px 10px;font-size:14px;border:1px solid var(--border2);border-radius:8px;background:var(--bg3);color:var(--text);font-family:inherit}
-.manual-row select{padding:8px 10px;font-size:13px;border:1px solid var(--border2);border-radius:8px;background:var(--bg3);color:var(--text);font-family:inherit}
-.btn-add{padding:8px 14px;border-radius:8px;font-size:13px;cursor:pointer;font-family:inherit;border:1px solid var(--green);background:var(--green-dim);color:var(--green)}
+.manual-input{width:90px;height:52px;text-align:center;font-size:14px;font-weight:500;padding:0 8px;border:1px solid var(--border2);border-radius:var(--r);background:var(--bg3);color:var(--text);font-family:inherit}
+.manual-input:focus{outline:none;border-color:#555}
+.btn-add{height:52px;padding:0 12px;border-radius:var(--r);font-size:13px;cursor:pointer;font-family:inherit;border:1px solid var(--green);background:var(--green-dim);color:var(--green);white-space:nowrap}
 .btn-add:hover{background:var(--green);color:#fff}
 
-.recap{background:var(--bg3);border-radius:8px;padding:10px 14px;display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-top:8px}
+/* BANKROLL RESULT ZONE */
+.br-result-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-bottom:10px}
+.br-result-card{background:var(--bg3);border-radius:var(--r);padding:10px;border:1px solid var(--border)}
+.br-result-site{display:flex;align-items:center;gap:5px;font-size:12px;font-weight:600;margin-bottom:6px}
+.br-result-row{display:flex;justify-content:space-between;align-items:center;font-size:12px;margin-bottom:4px}
+.br-result-row label{color:var(--text3);font-size:11px}
+.br-result-row .val{font-weight:500}
+.br-result-row input{width:80px;padding:4px 6px;font-size:12px;border:1px solid var(--border2);border-radius:5px;background:var(--bg4);color:var(--text);font-family:inherit;text-align:right}
+.br-result-row input:focus{outline:none;border-color:#555}
+.br-net{font-size:13px;font-weight:600;margin-top:4px;padding-top:4px;border-top:1px solid var(--border)}
+.br-total-row{display:flex;justify-content:space-between;align-items:center;padding:8px 12px;background:var(--bg3);border-radius:var(--r);font-size:14px;font-weight:600}
+
+/* RECAP */
+.recap{background:var(--bg3);border-radius:var(--r);padding:10px 14px;display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-top:8px}
 .recap-item{font-size:13px;color:var(--text2)}
 .recap-abi{font-size:11px;color:var(--text3);margin-left:3px}
 .recap-total{margin-left:auto;font-size:13px;font-weight:600;color:var(--green)}
 
+/* CLOSE FORM */
 .form-row{display:flex;gap:10px;align-items:flex-end;flex-wrap:wrap}
 .fg{display:flex;flex-direction:column;gap:5px}
 .fg label{font-size:12px;color:var(--text2)}
-input,select{padding:9px 12px;font-size:14px;border:1px solid var(--border2);border-radius:8px;background:var(--bg3);color:var(--text);font-family:inherit}
+input,select{padding:9px 12px;font-size:14px;border:1px solid var(--border2);border-radius:var(--r);background:var(--bg3);color:var(--text);font-family:inherit}
 input:focus,select:focus{outline:none;border-color:#555}
-.btn{padding:9px 18px;border-radius:8px;font-size:13px;cursor:pointer;font-family:inherit;border:1px solid var(--border2);background:transparent;color:var(--text)}
+.btn{padding:9px 18px;border-radius:var(--r);font-size:13px;cursor:pointer;font-family:inherit;border:1px solid var(--border2);background:transparent;color:var(--text)}
 .btn:hover{background:var(--bg3)}
 .btn.primary{background:var(--green);border-color:var(--green);color:#fff}
 .btn.primary:hover{background:#168a63}
@@ -87,55 +115,71 @@ input:focus,select:focus{outline:none;border-color:#555}
 .btn.danger:hover{background:var(--red-dim)}
 .btn.sm{padding:6px 12px;font-size:12px}
 
-.hist-list{display:flex;flex-direction:column;gap:5px;max-height:340px;overflow-y:auto}
-.hist-row{display:flex;align-items:center;gap:10px;padding:9px 12px;background:var(--bg3);border-radius:8px;font-size:13px}
-.hist-date{color:var(--text2);min-width:75px;font-size:12px}
-.hist-tags{flex:1;display:flex;gap:5px;flex-wrap:wrap}
-.hist-tag{padding:2px 7px;border-radius:5px;font-size:11px;background:var(--bg4);border:1px solid var(--border)}
-.hist-result{font-weight:600;min-width:72px;text-align:right}
-.hist-del{opacity:.3;cursor:pointer;font-size:11px;margin-left:4px}
+/* HISTORY */
+.hist-filters{display:flex;gap:8px;align-items:center;margin-bottom:12px;flex-wrap:wrap}
+.hist-list{display:flex;flex-direction:column;gap:5px}
+.hist-row{padding:10px 14px;background:var(--bg3);border-radius:var(--r);cursor:pointer;border:1px solid transparent;transition:border-color .15s}
+.hist-row:hover{border-color:var(--border2)}
+.hist-row-main{display:flex;align-items:center;gap:10px;font-size:13px}
+.hist-date{color:var(--text2);min-width:80px;font-size:12px}
+.hist-info{flex:1;display:flex;gap:12px;flex-wrap:wrap}
+.hist-info-item{font-size:12px;color:var(--text2)}
+.hist-info-item strong{color:var(--text);font-weight:500}
+.hist-result{font-weight:600;min-width:72px;text-align:right;font-size:14px}
+.hist-duration{font-size:11px;color:var(--text3);margin-left:4px}
+.hist-del{opacity:.3;cursor:pointer;font-size:11px;margin-left:8px}
 .hist-del:hover{opacity:1;color:var(--red)}
+.hist-detail{display:none;margin-top:10px;padding-top:10px;border-top:1px solid var(--border)}
+.hist-detail.open{display:block}
+.hist-sites-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:6px}
+.hist-site-card{background:var(--bg4);border-radius:6px;padding:8px;font-size:12px}
+.hist-site-name{display:flex;align-items:center;gap:5px;font-weight:600;margin-bottom:4px;font-size:11px}
+.hist-site-row{display:flex;justify-content:space-between;color:var(--text3);margin-bottom:2px}
+.hist-site-row span{color:var(--text2)}
+.hist-chart-wrap{position:relative;width:100%;height:200px;margin-top:12px}
 
+/* STATS */
 .stats-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px}
 .chart-wrap{position:relative;width:100%;height:220px}
 .site-breakdown{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-bottom:14px}
-.sb{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:12px}
+.sb{background:var(--bg2);border:1px solid var(--border);border-radius:var(--rl);padding:12px}
 .sb-head{display:flex;align-items:center;gap:7px;margin-bottom:8px;font-size:13px;font-weight:600}
 .sb-row{display:flex;justify-content:space-between;font-size:12px;color:var(--text2);margin-bottom:3px}
 .sb-row span{color:var(--text);font-weight:500}
 
+/* EXPORT */
+.export-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--rl);padding:16px;margin-bottom:12px}
+.export-title{font-size:13px;font-weight:600;margin-bottom:6px}
+.export-desc{font-size:13px;color:var(--text2);margin-bottom:12px}
+textarea{width:100%;padding:10px;font-size:11px;font-family:monospace;border:1px solid var(--border);border-radius:var(--r);background:var(--bg3);color:var(--text2);resize:none}
+.endpoint{background:var(--bg3);border:1px solid var(--border);border-radius:var(--r);padding:9px 12px;margin-bottom:6px;font-family:monospace;font-size:12px;word-break:break-all}
+.method{display:inline-block;padding:2px 7px;border-radius:4px;font-size:11px;font-weight:700;margin-right:8px;background:var(--green-dim);color:var(--green)}
+.method.del{background:var(--red-dim);color:var(--red)}
+
+/* UTILS */
+.empty{color:var(--text3);font-size:13px;text-align:center;padding:1.5rem 0}
+.pos{color:var(--green)}.neg{color:var(--red)}
 .mtable{width:100%;border-collapse:collapse;font-size:13px}
 .mtable th{font-size:11px;color:var(--text3);text-align:left;padding:6px 10px;border-bottom:1px solid var(--border);font-weight:600;text-transform:uppercase;letter-spacing:.05em}
 .mtable td{padding:8px 10px;border-bottom:1px solid var(--border)}
 .mtable tr:last-child td{border-bottom:none}
 .mtable tr:hover td{background:var(--bg3)}
 
-.export-card{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:16px;margin-bottom:12px}
-.export-title{font-size:13px;font-weight:600;margin-bottom:6px}
-.export-desc{font-size:13px;color:var(--text2);margin-bottom:12px}
-textarea{width:100%;padding:10px;font-size:11px;font-family:monospace;border:1px solid var(--border);border-radius:8px;background:var(--bg3);color:var(--text2);resize:none}
-.endpoint{background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:9px 12px;margin-bottom:6px;font-family:monospace;font-size:12px;word-break:break-all}
-.method{display:inline-block;padding:2px 7px;border-radius:4px;font-size:11px;font-weight:700;margin-right:8px;background:var(--green-dim);color:var(--green)}
-.method.del{background:var(--red-dim);color:var(--red)}
-.empty{color:var(--text3);font-size:13px;text-align:center;padding:1.5rem 0}
-.pos{color:var(--green)}
-.neg{color:var(--red)}
-
 /* MODALS */
 .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.75);display:flex;align-items:center;justify-content:center;z-index:100}
-.modal{background:var(--bg2);border:1px solid var(--border2);border-radius:12px;padding:20px;width:340px}
+.modal{background:var(--bg2);border:1px solid var(--border2);border-radius:var(--rl);padding:20px;width:340px}
 .modal h3{font-size:15px;font-weight:600;margin-bottom:16px}
 .modal .fg{margin-bottom:12px}
 .modal .fg label{font-size:12px;color:var(--text2);display:block;margin-bottom:5px}
-.modal input{width:100%;padding:9px 12px;font-size:14px;border:1px solid var(--border2);border-radius:8px;background:var(--bg3);color:var(--text);font-family:inherit}
+.modal input{width:100%;padding:9px 12px;font-size:14px;border:1px solid var(--border2);border-radius:var(--r);background:var(--bg3);color:var(--text);font-family:inherit}
 .modal input:focus{outline:none;border-color:#555}
-.modal-btns{display:flex;gap:8px;margin-top:4px}
+.modal-btns{display:flex;gap:8px;margin-top:16px}
 .br-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 </style>
 </head>
 <body>
 
-<!-- Modal : éditer un site de la session -->
+<!-- Modal : éditer un site -->
 <div class="modal-overlay" id="edit-modal" style="display:none">
   <div class="modal">
     <h3 id="edit-modal-title">Modifier</h3>
@@ -148,12 +192,12 @@ textarea{width:100%;padding:10px;font-size:11px;font-family:monospace;border:1px
   </div>
 </div>
 
-<!-- Modal : éditer les bankrolls -->
+<!-- Modal : bankrolls -->
 <div class="modal-overlay" id="br-modal" style="display:none">
-  <div class="modal" style="width:380px">
+  <div class="modal" style="width:400px">
     <h3>Bankrolls par site (€)</h3>
     <div class="br-grid" id="br-edit-grid"></div>
-    <div class="modal-btns" style="margin-top:16px">
+    <div class="modal-btns">
       <button class="btn primary sm" onclick="saveBankrolls()">Enregistrer</button>
       <button class="btn sm" onclick="closeModal('br-modal')">Annuler</button>
     </div>
@@ -173,63 +217,104 @@ textarea{width:100%;padding:10px;font-size:11px;font-family:monospace;border:1px
   </div>
 </nav>
 
-<!-- SESSION -->
+<!-- ===== SESSION ===== -->
 <div class="page active" id="page-session">
+
+  <!-- Métriques -->
   <div class="metrics">
-    <div class="metric"><div class="metric-label">Buy-ins session</div><div class="metric-value" id="m-buyin">€0</div></div>
-    <div class="metric"><div class="metric-label">MTT session</div><div class="metric-value" id="m-mtt">0</div></div>
-    <div class="metric"><div class="metric-label">ABI session</div><div class="metric-value" id="m-abi">—</div></div>
-    <div class="metric"><div class="metric-label">P&L all-time</div><div class="metric-value" id="m-pnl">€0</div></div>
-    <div class="metric"><div class="metric-label">Sessions totales</div><div class="metric-value" id="m-total">0</div></div>
+    <div class="metric"><div class="metric-label">Buy-ins</div><div class="metric-value" id="m-buyin">€0</div></div>
+    <div class="metric"><div class="metric-label">MTT</div><div class="metric-value" id="m-mtt">0</div></div>
+    <div class="metric"><div class="metric-label">ABI</div><div class="metric-value" id="m-abi">—</div></div>
   </div>
 
+  <!-- Timer -->
+  <div class="timer-bar">
+    <button class="btn-start" id="timer-btn" onclick="toggleTimer()">▶ Démarrer la session</button>
+    <span class="timer-status" id="timer-status">Session non démarrée</span>
+    <span class="timer-clock" id="timer-clock">00:00:00</span>
+    <div class="timer-manual">
+      <label>Durée manuelle (min) :</label>
+      <input type="number" id="manual-duration" min="0" step="1" style="width:80px;padding:6px 8px;font-size:13px" placeholder="ex: 120">
+    </div>
+  </div>
+
+  <!-- Buy-ins par site -->
   <div class="card">
-    <div class="card-title">Buy-ins rapides</div>
+    <div class="card-title">Buy-ins</div>
     <div id="buyin-grid"></div>
-    <div class="manual-row">
-      <label>Montant manuel :</label>
-      <select id="manual-site">
+    <div style="margin-top:12px;padding-top:12px;border-top:1px solid var(--border);display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+      <span style="font-size:12px;color:var(--text2)">Ajouter manuellement :</span>
+      <select id="manual-site" style="padding:6px 10px;font-size:13px">
         <option value="wina">Winamax</option>
         <option value="ps">PokerStars</option>
         <option value="pmu">PMU Poker</option>
         <option value="bet">Betclic</option>
         <option value="uni">Unibet</option>
       </select>
-      <input type="number" id="manual-amount" placeholder="ex: 1 ou 100" step="0.01" min="0.01">
+      <input type="number" id="manual-amount" placeholder="€?" step="0.01" min="0.01" style="width:90px;padding:6px 10px;font-size:14px">
       <button class="btn-add" onclick="addManualBuyin()">+ Ajouter</button>
     </div>
     <div class="recap" id="recap"><span style="color:var(--text3);font-size:13px">Aucun buy-in enregistré</span></div>
   </div>
 
+  <!-- Bankrolls avant/après -->
+  <div class="card">
+    <div class="card-title">Bankrolls & résultat net</div>
+    <div class="br-result-grid" id="br-result-grid"></div>
+    <div class="br-total-row">
+      <span style="color:var(--text2)">Résultat net calculé</span>
+      <span id="br-net-total" style="font-size:16px">—</span>
+    </div>
+  </div>
+
+  <!-- Clôture -->
   <div class="card">
     <div class="card-title">Clôturer la session</div>
     <div class="form-row">
       <div class="fg"><label>Date</label><input type="date" id="close-date" style="width:148px"></div>
-      <div class="fg"><label>Résultat net (€)</label><input type="number" id="close-result" placeholder="ex: 145 ou -60" step="0.01" style="width:168px"></div>
+      <div class="fg">
+        <label>Résultat net (€) <span style="color:var(--text3);font-size:11px">— ou utilise le calcul bankroll ci-dessus</span></label>
+        <input type="number" id="close-result" placeholder="ex: 145 ou -60" step="0.01" style="width:200px">
+      </div>
       <div class="fg"><label>Note</label><input type="text" id="close-note" placeholder="Optionnel" style="width:168px"></div>
       <button class="btn primary" onclick="closeSession()">Enregistrer</button>
-      <button class="btn danger" onclick="resetSession()">Reset session</button>
+      <button class="btn danger" onclick="resetSession()">Reset</button>
     </div>
   </div>
 </div>
 
-<!-- HISTORY -->
+<!-- ===== HISTORIQUE ===== -->
 <div class="page" id="page-history">
-  <div style="display:flex;gap:8px;align-items:center;margin-bottom:12px">
-    <select id="hist-month" onchange="renderHistory()" style="width:180px"></select>
-    <button class="btn" onclick="document.getElementById('hist-month').value='all';renderHistory()">Tout afficher</button>
+  <div class="hist-filters">
+    <select id="hist-month" onchange="renderHistory()" style="width:160px"></select>
+    <select id="hist-site-filter" onchange="renderHistory()" style="width:140px">
+      <option value="all">Tous les sites</option>
+      <option value="wina">Winamax</option>
+      <option value="ps">PokerStars</option>
+      <option value="pmu">PMU Poker</option>
+      <option value="bet">Betclic</option>
+      <option value="uni">Unibet</option>
+    </select>
+    <button class="btn sm" onclick="resetHistFilters()">Réinitialiser</button>
   </div>
+
   <div class="card">
-    <div class="card-title">Sessions</div>
-    <div class="hist-list" id="hist-list"><div class="empty">Aucune session</div></div>
+    <div class="card-title">Sessions <span id="hist-count" style="font-weight:400;color:var(--text3)"></span></div>
+    <div id="hist-list"><div class="empty">Aucune session</div></div>
   </div>
+
+  <div class="card">
+    <div class="card-title">Courbe des résultats nets</div>
+    <div class="hist-chart-wrap"><canvas id="hist-chart"></canvas></div>
+  </div>
+
   <div class="card">
     <div class="card-title">Récap mensuel</div>
     <table class="mtable" id="month-table"></table>
   </div>
 </div>
 
-<!-- STATS -->
+<!-- ===== STATS ===== -->
 <div class="page" id="page-stats">
   <div class="stats-grid">
     <div class="metric"><div class="metric-label">Sessions</div><div class="metric-value" id="st-n">0</div></div>
@@ -249,7 +334,7 @@ textarea{width:100%;padding:10px;font-size:11px;font-family:monospace;border:1px
   </div>
 </div>
 
-<!-- SITES -->
+<!-- ===== PAR SITE ===== -->
 <div class="page" id="page-sites">
   <div class="site-breakdown" id="site-breakdown"></div>
   <div class="card">
@@ -258,7 +343,7 @@ textarea{width:100%;padding:10px;font-size:11px;font-family:monospace;border:1px
   </div>
 </div>
 
-<!-- EXPORT -->
+<!-- ===== EXPORT ===== -->
 <div class="page" id="page-export">
   <div class="export-card">
     <div class="export-title">Export CSV</div>
@@ -296,9 +381,13 @@ let allSessions = [];
 let charts = {};
 let ws;
 let editingSite = null;
-
 let bankrolls = JSON.parse(localStorage.getItem('pk_bankrolls') || '{}');
 SITES.forEach(s => { if (bankrolls[s.id] === undefined) bankrolls[s.id] = 0; });
+
+// Timer
+let timerStart = null;
+let timerInterval = null;
+let timerRunning = false;
 
 const BASE = window.location.origin;
 
@@ -319,9 +408,47 @@ function setConn(on) {
   document.getElementById('conn-label').textContent = on ? 'Connecté' : 'Déconnecté';
 }
 
-// ── Bankrolls ─────────────────────────────────────────────────
-function saveBankrollsLocal() { localStorage.setItem('pk_bankrolls', JSON.stringify(bankrolls)); }
+// ── Timer ─────────────────────────────────────────────────────
+function toggleTimer() {
+  if (!timerRunning) {
+    timerStart = Date.now();
+    timerRunning = true;
+    timerInterval = setInterval(updateTimerDisplay, 1000);
+    document.getElementById('timer-btn').textContent = '■ Arrêter';
+    document.getElementById('timer-btn').classList.add('active');
+    document.getElementById('timer-status').textContent = 'Session en cours';
+    document.getElementById('timer-clock').classList.add('running');
+  } else {
+    const mins = Math.round((Date.now() - timerStart) / 60000);
+    clearInterval(timerInterval);
+    timerRunning = false;
+    document.getElementById('timer-btn').textContent = '▶ Démarrer la session';
+    document.getElementById('timer-btn').classList.remove('active');
+    document.getElementById('timer-status').textContent = `Durée : ${fmtDuration(mins)}`;
+    document.getElementById('timer-clock').classList.remove('running');
+    document.getElementById('timer-clock').textContent = fmtDurationClock(mins * 60);
+    document.getElementById('manual-duration').value = mins;
+  }
+}
 
+function updateTimerDisplay() {
+  if (!timerStart) return;
+  const secs = Math.floor((Date.now() - timerStart) / 1000);
+  document.getElementById('timer-clock').textContent = fmtDurationClock(secs);
+}
+
+function fmtDurationClock(secs) {
+  const h = Math.floor(secs/3600), m = Math.floor((secs%3600)/60), s = secs%60;
+  return `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+}
+
+function fmtDuration(mins) {
+  if (!mins) return '—';
+  const h = Math.floor(mins/60), m = mins%60;
+  return h > 0 ? `${h}h${m > 0 ? m+'m' : ''}` : `${m}m`;
+}
+
+// ── Bankrolls nav ─────────────────────────────────────────────
 function renderNavBankrolls() {
   const total = SITES.reduce((a, s) => a + (bankrolls[s.id] || 0), 0);
   document.getElementById('nav-bankrolls').innerHTML =
@@ -354,12 +481,65 @@ function saveBankrolls() {
     const v = parseFloat(document.getElementById('br-'+s.id).value);
     bankrolls[s.id] = isNaN(v) ? 0 : v;
   });
-  saveBankrollsLocal();
+  localStorage.setItem('pk_bankrolls', JSON.stringify(bankrolls));
   renderNavBankrolls();
+  renderBrResultGrid();
   closeModal('br-modal');
 }
 
 function closeModal(id) { document.getElementById(id).style.display = 'none'; }
+
+// ── Bankroll result grid ──────────────────────────────────────
+function renderBrResultGrid() {
+  const grid = document.getElementById('br-result-grid');
+  grid.innerHTML = SITES.map(s => `
+    <div class="br-result-card">
+      <div class="br-result-site">
+        <span style="width:8px;height:8px;border-radius:50%;background:${s.color};display:inline-block;flex-shrink:0"></span>
+        ${s.name.split(' ')[0]}
+      </div>
+      <div class="br-result-row">
+        <label>Avant</label>
+        <span class="val">€${(bankrolls[s.id]||0).toFixed(2)}</span>
+      </div>
+      <div class="br-result-row">
+        <label>Après</label>
+        <input type="number" id="br-after-${s.id}" step="0.01" placeholder="€?"
+          oninput="updateNetResult()" value="">
+      </div>
+      <div class="br-net" id="br-net-${s.id}" style="color:var(--text3)">—</div>
+    </div>
+  `).join('');
+}
+
+function updateNetResult() {
+  let totalNet = 0;
+  let anyFilled = false;
+  SITES.forEach(s => {
+    const after = parseFloat(document.getElementById('br-after-'+s.id).value);
+    const before = bankrolls[s.id] || 0;
+    const netEl = document.getElementById('br-net-'+s.id);
+    if (!isNaN(after)) {
+      const net = after - before;
+      anyFilled = true;
+      totalNet += net;
+      netEl.textContent = (net >= 0 ? '+' : '') + '€' + net.toFixed(2);
+      netEl.style.color = net >= 0 ? 'var(--green)' : 'var(--red)';
+    } else {
+      netEl.textContent = '—';
+      netEl.style.color = 'var(--text3)';
+    }
+  });
+  const el = document.getElementById('br-net-total');
+  if (anyFilled) {
+    el.textContent = (totalNet >= 0 ? '+' : '') + '€' + totalNet.toFixed(2);
+    el.style.color = totalNet >= 0 ? 'var(--green)' : 'var(--red)';
+    document.getElementById('close-result').value = totalNet.toFixed(2);
+  } else {
+    el.textContent = '—';
+    el.style.color = 'var(--text)';
+  }
+}
 
 // ── Data ──────────────────────────────────────────────────────
 async function loadSession() {
@@ -375,26 +555,24 @@ async function loadSessions() {
   if (page === 'page-history') renderHistory();
   if (page === 'page-stats') renderStats();
   if (page === 'page-sites') renderSites();
-  updateGlobalMetrics();
 }
 
-// ── Session UI ────────────────────────────────────────────────
+// ── Buy-in grid ───────────────────────────────────────────────
 function buildBuyinGrid() {
   document.getElementById('buyin-grid').innerHTML = SITES.map(s => `
     <div class="site-section">
-      <div class="site-label">
+      <div class="site-header">
         <span class="site-dot" style="background:${s.color}"></span>
-        <strong>${s.name}</strong>
-        <span class="site-counter" id="ctr-${s.id}">MTT: 0 · €0.00</span>
+        <span class="site-name">${s.name}</span>
+        <span class="site-counter" id="ctr-${s.id}">MTT: 0 · €0</span>
         <span class="site-abi" id="abi-${s.id}"></span>
-        <button class="edit-site-btn" onclick="openEditSite('${s.id}')">Modifier</button>
+        <button class="edit-site-btn" onclick="openEditSite('${s.id}')">✎</button>
       </div>
       <div class="buyin-row">
         ${BUYINS.map(v => `
-          <button class="buyin-btn" id="bb-${s.id}-${v}" onclick="addBuyin('${s.id}',${v})">
-            €${v}<span class="sub">${s.name.split(' ')[0]}</span>
-          </button>`).join('')}
-        <button class="undo-btn" onclick="undoBuyin('${s.id}')">↩<span style="font-size:9px;display:block">undo</span></button>
+          <button class="buyin-btn" id="bb-${s.id}-${v}" onclick="addBuyin('${s.id}',${v})">€${v}</button>
+        `).join('')}
+        <button class="undo-btn" onclick="undoBuyin('${s.id}')" title="Annuler dernier buy-in">↩</button>
       </div>
     </div>
   `).join('');
@@ -471,7 +649,6 @@ function updateSessionUI() {
     if (c) c.textContent = `MTT: ${m} · €${b.toFixed(2)}`;
     if (a) a.textContent = m > 0 ? `· ABI: €${abi.toFixed(2)}` : '';
   });
-
   const globalAbi = totalMTT > 0 ? totalBuyin / totalMTT : 0;
   document.getElementById('m-buyin').textContent = '€'+totalBuyin.toFixed(2);
   document.getElementById('m-mtt').textContent = totalMTT;
@@ -496,37 +673,60 @@ function updateSessionUI() {
   `<div class="recap-total">${totalMTT} MTT · €${totalBuyin.toFixed(2)} · ABI €${totalAbi.toFixed(2)}</div>`;
 }
 
-function updateGlobalMetrics() {
-  const pnl = allSessions.reduce((a,s) => a + s.result, 0);
-  const el = document.getElementById('m-pnl');
-  el.textContent = (pnl >= 0 ? '+' : '') + '€' + pnl.toFixed(2);
-  el.className = 'metric-value ' + (pnl >= 0 ? 'pos' : 'neg');
-  document.getElementById('m-total').textContent = allSessions.length;
-}
-
 async function closeSession() {
   const result = parseFloat(document.getElementById('close-result').value);
-  if (isNaN(result)) { alert('Résultat invalide.'); return; }
+  if (isNaN(result)) { alert('Résultat net invalide — utilise le calcul bankroll ou entre une valeur manuellement.'); return; }
+  const manualMins = parseInt(document.getElementById('manual-duration').value);
+  let durationMins = null;
+  if (timerStart && timerRunning) {
+    durationMins = Math.round((Date.now() - timerStart) / 60000);
+    clearInterval(timerInterval);
+    timerRunning = false;
+    document.getElementById('timer-btn').textContent = '▶ Démarrer la session';
+    document.getElementById('timer-btn').classList.remove('active');
+    document.getElementById('timer-clock').classList.remove('running');
+    timerStart = null;
+  } else if (!isNaN(manualMins) && manualMins > 0) {
+    durationMins = manualMins;
+  }
   await fetch(`${BASE}/api/session/close`, {
     method:'POST', headers:{'Content-Type':'application/json'},
     body: JSON.stringify({
       result,
       date: document.getElementById('close-date').value,
-      note: document.getElementById('close-note').value
+      note: document.getElementById('close-note').value,
+      duration_mins: durationMins
     })
   });
+  // Reset
   document.getElementById('close-result').value = '';
   document.getElementById('close-note').value = '';
+  document.getElementById('manual-duration').value = '';
+  document.getElementById('timer-clock').textContent = '00:00:00';
+  document.getElementById('timer-status').textContent = 'Session non démarrée';
+  SITES.forEach(s => { const el = document.getElementById('br-after-'+s.id); if (el) el.value = ''; });
+  document.getElementById('br-net-total').textContent = '—';
   await loadSessions();
   alert('Session enregistrée !');
 }
 
 async function resetSession() {
   if (!confirm('Réinitialiser la session en cours ?')) return;
+  if (timerRunning) { clearInterval(timerInterval); timerRunning = false; timerStart = null; }
+  document.getElementById('timer-clock').textContent = '00:00:00';
+  document.getElementById('timer-status').textContent = 'Session non démarrée';
+  document.getElementById('timer-btn').textContent = '▶ Démarrer la session';
+  document.getElementById('timer-btn').classList.remove('active');
   await fetch(`${BASE}/api/session`, {method:'DELETE'});
 }
 
 // ── History ───────────────────────────────────────────────────
+function resetHistFilters() {
+  document.getElementById('hist-month').value = 'all';
+  document.getElementById('hist-site-filter').value = 'all';
+  renderHistory();
+}
+
 function renderHistory() {
   const sel = document.getElementById('hist-month');
   const months = [...new Set(allSessions.map(s => s.date.slice(0,7)))].sort().reverse();
@@ -534,44 +734,102 @@ function renderHistory() {
   sel.innerHTML = '<option value="all">Tous les mois</option>' +
     months.map(m => `<option value="${m}">${fmtMonth(m)}</option>`).join('');
   if (cur) sel.value = cur;
-  const filter = sel.value;
-  const filtered = allSessions
-    .filter(s => filter === 'all' || s.date.startsWith(filter))
+
+  const monthFilter = sel.value;
+  const siteFilter = document.getElementById('hist-site-filter').value;
+
+  let filtered = allSessions
+    .filter(s => monthFilter === 'all' || s.date.startsWith(monthFilter))
+    .filter(s => siteFilter === 'all' || (s.sites?.[siteFilter]?.mtt > 0))
     .sort((a,b) => b.date.localeCompare(a.date));
+
+  document.getElementById('hist-count').textContent = `(${filtered.length})`;
 
   const list = document.getElementById('hist-list');
   if (!filtered.length) { list.innerHTML = '<div class="empty">Aucune session</div>'; }
-  else list.innerHTML = filtered.map(s => `
-    <div class="hist-row">
-      <div class="hist-date">${s.date}</div>
-      <div class="hist-tags">
-        ${SITES.filter(si => s.sites?.[si.id]?.mtt > 0).map(si =>
-          `<span class="hist-tag" style="border-color:${si.color};color:${si.color}">${si.name.split(' ')[0]}: ${s.sites[si.id].mtt} · €${s.sites[si.id].buyin.toFixed(0)}</span>`
-        ).join('')}
-        ${s.note ? `<span class="hist-tag">${s.note}</span>` : ''}
+  else list.innerHTML = filtered.map(s => {
+    const abi = s.total_mtt > 0 ? (s.total_buyin / s.total_mtt).toFixed(2) : '—';
+    const dur = s.duration_mins ? fmtDuration(s.duration_mins) : '—';
+    return `
+    <div class="hist-row" onclick="toggleHistDetail(${s.id})">
+      <div class="hist-row-main">
+        <div class="hist-date">${s.date}</div>
+        <div class="hist-info">
+          <div class="hist-info-item">MTT : <strong>${s.total_mtt}</strong></div>
+          <div class="hist-info-item">Buy-ins : <strong>€${s.total_buyin.toFixed(2)}</strong></div>
+          <div class="hist-info-item">ABI : <strong>€${abi}</strong></div>
+          <div class="hist-info-item">Durée : <strong>${dur}</strong></div>
+          ${s.note ? `<div class="hist-info-item" style="color:var(--text3)">${s.note}</div>` : ''}
+        </div>
+        <div class="hist-result ${s.result>=0?'pos':'neg'}">${s.result>=0?'+':''}€${s.result.toFixed(2)}</div>
+        <span class="hist-del" onclick="event.stopPropagation();delSession(${s.id})">✕</span>
       </div>
-      <div class="hist-result ${s.result>=0?'pos':'neg'}">${s.result>=0?'+':''}€${s.result.toFixed(2)}</div>
-      <span class="hist-del" onclick="delSession(${s.id})">✕</span>
-    </div>
-  `).join('');
+      <div class="hist-detail" id="detail-${s.id}">
+        <div class="hist-sites-grid">
+          ${SITES.map(si => {
+            const sd = s.sites?.[si.id];
+            if (!sd || sd.mtt === 0) return `<div class="hist-site-card" style="opacity:.4">
+              <div class="hist-site-name"><span style="width:7px;height:7px;border-radius:50%;background:${si.color};display:inline-block"></span>${si.name.split(' ')[0]}</div>
+              <div style="font-size:11px;color:var(--text3)">Pas joué</div>
+            </div>`;
+            const sabi = sd.mtt > 0 ? (sd.buyin / sd.mtt).toFixed(2) : '—';
+            return `<div class="hist-site-card">
+              <div class="hist-site-name"><span style="width:7px;height:7px;border-radius:50%;background:${si.color};display:inline-block"></span>${si.name.split(' ')[0]}</div>
+              <div class="hist-site-row">MTT <span>${sd.mtt}</span></div>
+              <div class="hist-site-row">Buy-ins <span>€${sd.buyin.toFixed(2)}</span></div>
+              <div class="hist-site-row">ABI <span>€${sabi}</span></div>
+            </div>`;
+          }).join('')}
+        </div>
+      </div>
+    </div>`;
+  }).join('');
 
+  renderHistChart(filtered);
+  renderMonthTable(filtered);
+}
+
+function toggleHistDetail(id) {
+  const el = document.getElementById('detail-'+id);
+  if (el) el.classList.toggle('open');
+}
+
+function renderHistChart(filtered) {
+  const sorted = [...filtered].sort((a,b) => a.date.localeCompare(b.date));
+  let cum = 0; const cumData = [0]; const cumLabels = [''];
+  sorted.forEach(s => { cum += s.result; cumData.push(+cum.toFixed(2)); cumLabels.push(s.date.slice(5)); });
+  if (charts.hist) charts.hist.destroy();
+  if (sorted.length === 0) return;
+  charts.hist = new Chart(document.getElementById('hist-chart'), {
+    type:'line', data:{labels:cumLabels, datasets:[{data:cumData,
+      borderColor:cum>=0?'#1D9E75':'#E24B4A', backgroundColor:cum>=0?'rgba(29,158,117,0.1)':'rgba(226,75,74,0.1)',
+      fill:true, tension:0.35, pointRadius:cumData.length<=20?3:0, borderWidth:2}]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},
+      scales:{x:{ticks:{color:'#5f5e5a',font:{size:10},maxTicksLimit:10},grid:{display:false}},
+              y:{ticks:{color:'#5f5e5a',font:{size:10},callback:v=>'€'+v},grid:{color:'rgba(255,255,255,0.05)'}}}}
+  });
+}
+
+function renderMonthTable(filtered) {
   const byMonth = {};
-  allSessions.forEach(s => {
+  filtered.forEach(s => {
     const m = s.date.slice(0,7);
-    if (!byMonth[m]) byMonth[m] = {result:0,buyin:0,mtt:0,sessions:0};
+    if (!byMonth[m]) byMonth[m] = {result:0,buyin:0,mtt:0,sessions:0,dur:0};
     byMonth[m].result += s.result; byMonth[m].buyin += s.total_buyin;
     byMonth[m].mtt += s.total_mtt; byMonth[m].sessions++;
+    byMonth[m].dur += s.duration_mins || 0;
   });
   const mkeys = Object.keys(byMonth).sort().reverse();
   document.getElementById('month-table').innerHTML =
-    '<thead><tr><th>Mois</th><th>Sessions</th><th>MTT</th><th>Buy-ins</th><th>ABI</th><th>Résultat</th><th>ROI</th></tr></thead><tbody>' +
+    '<thead><tr><th>Mois</th><th>Sessions</th><th>MTT</th><th>Buy-ins</th><th>ABI</th><th>Durée</th><th>Résultat</th><th>ROI</th></tr></thead><tbody>' +
     mkeys.map(m => {
       const d = byMonth[m];
       const roi = d.buyin > 0 ? ((d.result/d.buyin)*100).toFixed(1) : '-';
       const abi = d.mtt > 0 ? (d.buyin/d.mtt).toFixed(2) : '-';
+      const dur = d.dur > 0 ? fmtDuration(d.dur) : '-';
       return `<tr>
         <td>${fmtMonth(m)}</td><td>${d.sessions}</td><td>${d.mtt}</td>
-        <td>€${d.buyin.toFixed(2)}</td><td>€${abi}</td>
+        <td>€${d.buyin.toFixed(2)}</td><td>€${abi}</td><td>${dur}</td>
         <td class="${d.result>=0?'pos':'neg'}">${d.result>=0?'+':''}€${d.result.toFixed(2)}</td>
         <td class="${parseFloat(roi)>=0?'pos':'neg'}">${roi}%</td>
       </tr>`;
@@ -597,11 +855,9 @@ function renderStats() {
   setRoiEl('st-roi', roi);
   document.getElementById('st-best').textContent = '+€'+Math.max(...ss.map(s=>s.result)).toFixed(2);
   document.getElementById('st-worst').textContent = '€'+Math.min(...ss.map(s=>s.result)).toFixed(2);
-
   const sorted = [...ss].sort((a,b) => a.date.localeCompare(b.date));
   let cum = 0; const cumData = [0]; const cumLabels = ['Départ'];
   sorted.forEach(s => { cum += s.result; cumData.push(+cum.toFixed(2)); cumLabels.push(s.date.slice(5)); });
-
   if (charts.cum) charts.cum.destroy();
   charts.cum = new Chart(document.getElementById('chart-cum'), {
     type:'line', data:{labels:cumLabels, datasets:[{data:cumData,
@@ -611,7 +867,6 @@ function renderStats() {
       scales:{x:{ticks:{color:'#5f5e5a',font:{size:10},maxTicksLimit:10},grid:{display:false}},
               y:{ticks:{color:'#5f5e5a',font:{size:10},callback:v=>'€'+v},grid:{color:'rgba(255,255,255,0.05)'}}}}
   });
-
   if (charts.bar) charts.bar.destroy();
   charts.bar = new Chart(document.getElementById('chart-bar'), {
     type:'bar', data:{labels:sorted.map(s=>s.date.slice(5)),
@@ -638,7 +893,6 @@ function renderSites() {
       <div class="sb-row">ABI <span>€${abi}</span></div>
     </div>`;
   }).join('');
-
   if (charts.sites) charts.sites.destroy();
   charts.sites = new Chart(document.getElementById('chart-sites'), {
     type:'bar',
@@ -660,12 +914,11 @@ function renderExport() {
     )).join('') +
     `<div class="endpoint"><span class="method del">DELETE</span>${BASE}/api/session — Reset session courante</div>`;
 }
-
 function exportCSV() {
-  const header = 'Date,Résultat,Buy-ins,MTT,ABI,'+SITES.map(s=>s.name+' MTT,'+s.name+' Buyin').join(',')+',Note';
+  const header = 'Date,Résultat,Buy-ins,MTT,ABI,Durée(min),'+SITES.map(s=>s.name+' MTT,'+s.name+' Buyin').join(',')+',Note';
   const rows = [...allSessions].sort((a,b)=>a.date.localeCompare(b.date)).map(s => {
     const abi = s.total_mtt > 0 ? (s.total_buyin/s.total_mtt).toFixed(2) : 0;
-    return [s.date,s.result,s.total_buyin,s.total_mtt,abi,
+    return [s.date,s.result,s.total_buyin,s.total_mtt,abi,s.duration_mins||'',
       ...SITES.flatMap(si=>[(s.sites?.[si.id]?.mtt||0),(s.sites?.[si.id]?.buyin||0)]),
       s.note||''
     ].join(',');
@@ -673,13 +926,11 @@ function exportCSV() {
   const blob = new Blob([header+'\n'+rows.join('\n')], {type:'text/csv;charset=utf-8'});
   const a = document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='poker_sessions.csv'; a.click();
 }
-
 function copyJSON() { navigator.clipboard.writeText(document.getElementById('json-out').value).then(()=>alert('Copié !')); }
-
 async function clearData() {
   if (!confirm('Supprimer TOUTES les données ? Irréversible.')) return;
   for (const s of allSessions) await fetch(`${BASE}/api/sessions/${s.id}`, {method:'DELETE'});
-  allSessions = []; updateGlobalMetrics();
+  allSessions = [];
 }
 
 // ── Nav ───────────────────────────────────────────────────────
@@ -714,6 +965,7 @@ function setRoiEl(id, v) {
 document.getElementById('close-date').value = new Date().toISOString().split('T')[0];
 buildBuyinGrid();
 renderNavBankrolls();
+renderBrResultGrid();
 connectWS();
 loadSession();
 loadSessions();
