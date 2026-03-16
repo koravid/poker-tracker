@@ -24,6 +24,7 @@ db.serialize(() => {
     total_buyin REAL DEFAULT 0,
     total_mtt INTEGER DEFAULT 0,
     note TEXT,
+    duration_mins INTEGER,
     created_at TEXT DEFAULT (datetime('now'))
   )`);
   db.run(`CREATE TABLE IF NOT EXISTS session_sites (
@@ -122,14 +123,14 @@ app.delete('/api/session', async (req, res) => {
 });
 
 app.post('/api/session/close', async (req, res) => {
-  const { result, date, note } = req.body;
+  const { result, date, note, duration_mins } = req.body;
   if (isNaN(parseFloat(result))) return res.status(400).json({ error: 'Résultat invalide' });
   const session = await getCurrentSession();
   const totalBuyin = SITES.reduce((a, s) => a + (session.buyins?.[s] || 0), 0);
   const totalMtt = SITES.reduce((a, s) => a + (session.mtt?.[s] || 0), 0);
   const info = await dbRun(
-    'INSERT INTO sessions (date, result, total_buyin, total_mtt, note) VALUES (?,?,?,?,?)',
-    [date || new Date().toISOString().split('T')[0], parseFloat(result), totalBuyin, totalMtt, note || '']
+    'INSERT INTO sessions (date, result, total_buyin, total_mtt, note, duration_mins) VALUES (?,?,?,?,?,?)',
+    [date || new Date().toISOString().split('T')[0], parseFloat(result), totalBuyin, totalMtt, note || '', duration_mins || null]
   );
   const sessionId = info.lastID;
   for (const s of SITES) {
